@@ -15,10 +15,17 @@ def make_docs():
     cmd = ["sphinx-build", "-b", "html", str(source_dir), str(build_dir)]
     result = subprocess.run(cmd, capture_output=True, text=True)
     
-    if result.returncode != 0:
+    # stdout 출력
+    if result.stdout:
+        print(result.stdout)
+    
+    # stderr(경고) 출력
+    if result.stderr:
+        print("\nWarnings:", file=sys.stderr)
         print(result.stderr, file=sys.stderr)
+    
+    if result.returncode != 0:
         sys.exit(result.returncode)
-    print(result.stdout)
 
 if __name__ == "__main__":
     make_docs() 
