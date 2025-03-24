@@ -9,12 +9,15 @@ COPY pyproject.toml poetry.lock /app/
 
 # Step 4: Poetry 설치
 RUN pip install poetry
+RUN poetry config virtualenvs.create false
 
 # Step 5: 의존성 설치
-RUN poetry install --no-root --verbose --without dev
+RUN poetry install --no-root --verbose --without tests,docs
 
 # Step 6: 애플리케이션 코드 복사
 COPY src /app/src
+ENV PYTHONPATH=/app
+
 
 # Step 7: 실행 명령어 설정
-CMD ["python", "src/eisenhour-api/main.py"]
+CMD ["python", "src/eisenhour_api/main.py"]
