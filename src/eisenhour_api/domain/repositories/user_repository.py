@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Protocol
 from uuid import UUID
-from eisenhour_api.domain.entities.user.entities import User
+from src.eisenhour_api.domain.entities.user.entities import User
 
 
 class UserModel(Protocol):
