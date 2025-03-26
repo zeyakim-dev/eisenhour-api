@@ -1,6 +1,6 @@
 from typing import Protocol
-from eisenhour_api.domain.entities.user.entities import User
-from eisenhour_api.domain.repositories.user_repository import UserRepository
+from src.eisenhour_api.domain.entities.user.entities import User, UserFactory
+from src.eisenhour_api.domain.repositories.user_repository import UserRepository
 
 
 class PasswordHasher(Protocol):
@@ -23,16 +23,13 @@ class LoginUserRequest(Protocol):
 
 
 class UserService:
-    def __init__(self, user_repository: UserRepository):
+    def __init__(self, user_factory: UserFactory, user_repository: UserRepository):
+        self.user_factory = user_factory
         self.user_repository = user_repository
 
     def register(self, user_data: CreateUserRequest, password_hasher: PasswordHasher) -> None:
         hashed_password = password_hasher.hash(user_data.password)
-        user = User(
-            username=user_data.username,
-            email=user_data.email,
-            password=hashed_password
-        )
+        user = self.user_factory.create(user_data.username, user_data.email, hashed_password)
         self.user_repository.create_user(user)
     
     def login(self, user_data: LoginUserRequest, password_hasher: PasswordHasher) -> None:
