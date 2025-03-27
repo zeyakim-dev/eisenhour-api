@@ -33,7 +33,7 @@ class UserService:
             email=user_data.email,
             password=hashed_password
         )
-        self.user_repository.create_user(user)
+        self.user_repository.create(user)
     
     def login(self, user_data: LoginUserRequest, password_hasher: PasswordHasher) -> None:
         user = self.user_repository.read_by_username(user_data.username)
