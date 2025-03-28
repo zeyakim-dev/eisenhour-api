@@ -27,10 +27,12 @@ class UserService:
         self.user_factory = user_factory
         self.user_repository = user_repository
 
-    def register(self, user_data: CreateUserRequest, password_hasher: PasswordHasher) -> None:
+    def register(self, user_data: CreateUserRequest, password_hasher: PasswordHasher) -> User:
         hashed_password = password_hasher.hash(user_data.password)
-        user = self.user_factory.create(user_data.username, user_data.email, hashed_password)
-        self.user_repository.create_user(user)
+        new_user = self.user_factory.create(user_data.username, user_data.email, hashed_password)
+        self.user_repository.create(new_user)
+
+        return new_user
     
     def login(self, user_data: LoginUserRequest, password_hasher: PasswordHasher) -> None:
         user = self.user_repository.read_by_username(user_data.username)

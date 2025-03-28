@@ -26,6 +26,7 @@ class TestUserRepository:
             id=existing_user_domain.id,
             username="updated",
             email=existing_user_domain.email,
+            password=existing_user_domain.password
         )
         user_repository.update(updated_user_domain)
         assert user_repository.users[existing_user_domain.id].username == "updated"
