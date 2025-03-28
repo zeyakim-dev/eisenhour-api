@@ -25,21 +25,34 @@ class FakePasswordHasher:
         return f"hashed_{password}" == hashed_password
 
 
-class FakeUserRepository:
-    def __init__(self):
-        self.users: dict[UUID, FakeUserDomain] = {}
-    
+class FakeUserDomain:
+    def __init__(self, id: UUID, username: str, email: str, password: str):
+        self.id = id
+        self.username = username
+        self.email = email
+        self.password = password
 
 
+class FakeUserFactory:
+    def create(self, username: str, email: str, hashed_password: str) -> FakeUserDomain:
+        return FakeUserDomain(
+            id=uuid4(),
+            username=username,
+            email=email,
+            password=hashed_password)
 
 @pytest.fixture
 def password_hasher():
     return FakePasswordHasher()
 
+@pytest.fixture
+def user_factory():
+    return FakeUserFactory()
+
 
 @pytest.fixture
-def user_service(user_repository):
-    return UserService(user_repository)
+def user_service(user_factory, user_repository):
+    return UserService(user_factory, user_repository)
 
 
 class TestUserService:
@@ -63,7 +76,7 @@ class TestUserService:
 
     def test_login_success(self, user_service, user_repository, password_hasher):
         # Given
-        user = User(
+        user = FakeUserDomain(
             id=uuid4(),
             username="test_user",
             email="test@example.com",
@@ -81,7 +94,7 @@ class TestUserService:
 
     def test_login_invalid_password(self, user_service, user_repository, password_hasher):
         # Given
-        user = User(
+        user = FakeUserDomain(
             id=uuid4(),
             username="test_user",
             email="test@example.com",
