@@ -14,4 +14,3 @@ repos:
         args: [--fix]
       # 포맷터 실행 (원한다면 --fix 붙여 자동 수정도 가능)
       - id: ruff-format
-        args: [--fix]
