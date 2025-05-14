@@ -27,3 +27,9 @@ disallow_untyped_defs = true
 check_untyped_defs = true
 ignore_missing_imports = true
 explicit_package_bases = true
+
+[tool.pytest.ini_options]
+python_files = [
+    "test_*.py"
+]
+testpaths = ["tests"]
