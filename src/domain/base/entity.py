@@ -3,10 +3,7 @@ from datetime import datetime, tzinfo
 from typing import Any, Self
 from uuid import UUID, uuid4
 
-
-class TimestampRequiredError(ValueError):
-    def __init__(self) -> None:
-        super().__init__("created_at and updated_at must be set")
+from domain.base.exceptions import TimestampRequiredError
 
 
 @dataclass(frozen=True, kw_only=True)
