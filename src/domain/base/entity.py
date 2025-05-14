@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field, replace
-from datetime import datetime, tzinfo
+from datetime import datetime
 from typing import Any, Self
 from uuid import UUID, uuid4
 
 from domain.base.exceptions import TimestampRequiredError
+from shared_kernel.time.time_provider import TimeProvider
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -25,13 +26,13 @@ class Entity:
             raise TimestampRequiredError()
 
     @classmethod
-    def create(cls, timezone: tzinfo, **kwargs: Any) -> Self:
-        now = datetime.now(timezone)
+    def create(cls, time_provider: TimeProvider, **kwargs: Any) -> Self:
+        now = time_provider.now()
         kwargs.setdefault("created_at", now)
         kwargs.setdefault("updated_at", now)
         return cls(**kwargs)
 
-    def update(self, timezone: tzinfo, **kwargs: Any) -> Self:
-        now = datetime.now(timezone)
+    def update(self, time_provider: TimeProvider, **kwargs: Any) -> Self:
+        now = time_provider.now()
         kwargs.setdefault("updated_at", now)
         return replace(self, **kwargs)
