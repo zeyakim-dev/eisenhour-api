@@ -1,0 +1,60 @@
+name: CI - UV & Changed Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  uv-changed-tests:
+    name: UV & Python Changed Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv (v0.7.2)
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: '0.7.2'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: '.python-version'
+
+      - name: Sync project dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: Determine changed files
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git diff --name-only origin/${{ github.base_ref }} ${{ github.head_ref }} > changed.txt
+          echo "::set-output name=files::$(<changed.txt)"
+
+      - name: Filter changed test files
+        id: filter
+        run: |
+          CHANGED_FILES="${{ steps.diff.outputs.files }}"
+          # tests/ 하위에서 test_*.py로 끝나는 파일만
+          TEST_FILES=$(printf "%s" "$CHANGED_FILES" | grep -E '^tests/.*test_.*\.py$' || true)
+          # 줄바꿈을 공백으로 변환
+          TEST_TARGETS="${TEST_FILES//$'\n'/ }"
+          echo "Filtered test files: $TEST_TARGETS"
+          echo "::set-output name=targets::$TEST_TARGETS"
+
+      - name: Run changed tests
+        if: steps.filter.outputs.targets != ''
+        run: |
+          echo "Running only changed tests: ${{ steps.filter.outputs.targets }}"
+          uv run pytest ${{ steps.filter.outputs.targets }} --maxfail=1 --disable-warnings -q
+
+      - name: Skip tests
+        if: steps.filter.outputs.targets == ''
+        run: |
+          echo "No changed test files detected; skipping pytest."
