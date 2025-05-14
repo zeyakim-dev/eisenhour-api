@@ -11,6 +11,10 @@ dependencies = [
 ]
 
 
+[tool.uv]
+package = true
+
+
 [tool.ruff.lint]
 extend-select = ["UP", "I", "N", "RUF", "TRY"]
 
