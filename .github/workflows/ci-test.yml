@@ -1,0 +1,64 @@
+name: CI - Pull Request Test
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  uv-changed-tests:
+    name: UV & Python Changed Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv (v0.7.2)
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: '0.7.2'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: '.python-version'
+
+      - name: Sync project dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: Determine changed files
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git fetch origin ${{ github.head_ref }}
+          git diff --name-only origin/${{ github.base_ref }} origin/${{ github.head_ref }} > changed.txt
+          echo "::set-output name=files::$(<changed.txt)"
+
+      - name: Filter changed test files
+        id: filter
+        run: |
+          CHANGED_FILES=$(cat changed.txt)
+          echo "All changed files:"
+          echo "$CHANGED_FILES"
+
+          TEST_FILES=$(printf "%s\n" "$CHANGED_FILES" | grep -E '(^tests/|./tests/).*test_.*\.py$' || true)
+
+          echo "Filtered test files:"
+          echo "$TEST_FILES"
+
+          TEST_TARGETS="${TEST_FILES//$'\n'/ }"
+          echo "targets=$TEST_TARGETS" >> $GITHUB_OUTPUT
+
+
+      - name: Run changed tests
+        if: steps.filter.outputs.targets != ''
+        run: |
+          echo "Running only changed tests: ${{ steps.filter.outputs.targets }}"
+          uv run pytest ${{ steps.filter.outputs.targets }} --maxfail=1 --disable-warnings -q
+
+      - name: Skip tests
+        if: steps.filter.outputs.targets == ''
+        run: |
+          echo "No changed test files detected; skipping pytest."
