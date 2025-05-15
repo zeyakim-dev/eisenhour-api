@@ -11,7 +11,7 @@ from domain.user.exceptions import (
     PasswordTooShortError,
     UsernameTooLongError,
 )
-from domain.user.value_objects import Email, Password, UserName
+from domain.user.value_objects import Email, PlainPassword, UserName
 
 
 class TestUserNameVO:
@@ -40,30 +40,30 @@ class TestEmailVO:
             Email("invalid-email")
 
 
-class TestPasswordVO:
+class TestPlainPasswordVO:
     def test_valid_password(self):
-        assert Password("Abcd1234!").value == "Abcd1234!"
+        assert PlainPassword("Abcd1234!").value == "Abcd1234!"
 
     def test_password_too_short(self):
         with pytest.raises(PasswordTooShortError):
-            Password("A1a!")
+            PlainPassword("A1a!")
 
     def test_password_too_long(self):
         with pytest.raises(PasswordTooLongError):
-            Password("A" * 101 + "1a!")
+            PlainPassword("A" * 101 + "1a!")
 
     def test_missing_uppercase(self):
         with pytest.raises(PasswordMissingUppercaseError):
-            Password("abcd1234!")
+            PlainPassword("abcd1234!")
 
     def test_missing_lowercase(self):
         with pytest.raises(PasswordMissingLowercaseError):
-            Password("ABCD1234!")
+            PlainPassword("ABCD1234!")
 
     def test_missing_number(self):
         with pytest.raises(PasswordMissingNumberError):
-            Password("Abcdefgh!")
+            PlainPassword("Abcdefgh!")
 
     def test_missing_special_character(self):
         with pytest.raises(PasswordMissingSpecialCharacterError):
-            Password("Abcd1234")
+            PlainPassword("Abcd1234")

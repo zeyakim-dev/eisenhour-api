@@ -37,7 +37,7 @@ class Email(ValueObject):
 
 
 @dataclass(frozen=True)
-class Password(ValueObject):
+class PlainPassword(ValueObject):
     value: str
 
     def __post_init__(self) -> None:
@@ -53,3 +53,8 @@ class Password(ValueObject):
             raise PasswordMissingNumberError()
         if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", self.value):
             raise PasswordMissingSpecialCharacterError()
+
+
+@dataclass(frozen=True)
+class HashedPassword(ValueObject):
+    value: str
