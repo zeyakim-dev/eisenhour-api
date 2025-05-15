@@ -39,13 +39,18 @@ jobs:
       - name: Filter changed test files
         id: filter
         run: |
-          CHANGED_FILES="${{ steps.diff.outputs.files }}"
-          # tests/ 하위에서 test_*.py로 끝나는 파일만
-          TEST_FILES=$(printf "%s" "$CHANGED_FILES" | grep -E '^tests/.*test_.*\.py$' || true)
-          # 줄바꿈을 공백으로 변환
+          CHANGED_FILES=$(cat changed.txt)
+          echo "All changed files:"
+          echo "$CHANGED_FILES"
+
+          TEST_FILES=$(printf "%s\n" "$CHANGED_FILES" | grep -E '(^tests/|./tests/).*test_.*\.py$' || true)
+
+          echo "Filtered test files:"
+          echo "$TEST_FILES"
+
           TEST_TARGETS="${TEST_FILES//$'\n'/ }"
-          echo "Filtered test files: $TEST_TARGETS"
-          echo "::set-output name=targets::$TEST_TARGETS"
+          echo "targets=$TEST_TARGETS" >> $GITHUB_OUTPUT
+
 
       - name: Run changed tests
         if: steps.filter.outputs.targets != ''
