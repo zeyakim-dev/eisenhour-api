@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from typing import Self
 
 from domain.base.aggregate import Aggregate
 from domain.user.value_objects import Email, HashedPassword, PlainPassword, UserName
 from shared_kernel.hasher.hasher import Hasher
-from shared_kernel.time_provider.time_provider import TimeProvider
+from shared_kernel.time.time_provider import TimeProvider
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -17,8 +18,10 @@ class User(Aggregate):
 
     def change_password(
         self, time_provider: TimeProvider, plain_password: PlainPassword, hasher: Hasher
-    ) -> None:
+    ) -> Self:
         new_hashed_password: HashedPassword = HashedPassword(
             hasher.hash(plain_password.value)
         )
-        self.update(time_provider=time_provider, hashed_password=new_hashed_password)
+        return self.update(
+            time_provider=time_provider, hashed_password=new_hashed_password
+        )
