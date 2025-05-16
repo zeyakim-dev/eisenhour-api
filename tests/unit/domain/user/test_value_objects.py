@@ -11,24 +11,24 @@ from domain.user.exceptions import (
     PasswordTooShortError,
     UsernameTooLongError,
 )
-from domain.user.value_objects import Email, PlainPassword, UserName
+from domain.user.value_objects import Email, PlainPassword, Username
 
 
-class TestUserNameVO:
+class TestUsernameVO:
     def test_valid_username(self):
-        assert UserName("홍길동").value == "홍길동"
+        assert Username("홍길동").value == "홍길동"
 
     def test_empty_username(self):
         with pytest.raises(EmptyUsernameError):
-            UserName("")
+            Username("")
 
     def test_whitespace_username(self):
         with pytest.raises(EmptyUsernameError):
-            UserName("   ")
+            Username("   ")
 
     def test_username_too_long(self):
         with pytest.raises(UsernameTooLongError):
-            UserName("a" * 51)
+            Username("a" * 51)
 
 
 class TestEmailVO:

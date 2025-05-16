@@ -2,14 +2,14 @@ from dataclasses import dataclass
 from typing import Self
 
 from domain.base.aggregate import Aggregate
-from domain.user.value_objects import Email, HashedPassword, PlainPassword, UserName
+from domain.user.value_objects import Email, HashedPassword, PlainPassword, Username
 from shared_kernel.hasher.hasher import Hasher
 from shared_kernel.time.time_provider import TimeProvider
 
 
 @dataclass(frozen=True, kw_only=True)
 class User(Aggregate):
-    name: UserName
+    username: Username
     email: Email
     hashed_password: HashedPassword
 
