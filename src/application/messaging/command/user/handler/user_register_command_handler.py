@@ -28,6 +28,9 @@ class UserRegisterCommandHandler(
         hashed_password_value = self.hasher.hash(plain_password.value)
         hashed_password = HashedPassword(hashed_password_value)
 
+        self.repository.check_username_exists(username.value)
+        self.repository.check_email_exists(email.value)
+
         user = User.create(
             time_provider=self.time_provider,
             username=username,
