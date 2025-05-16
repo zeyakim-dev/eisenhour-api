@@ -16,9 +16,7 @@ from domain.user.exceptions import (
 
 
 @dataclass(frozen=True)
-class Username(ValueObject):
-    value: str
-
+class Username(ValueObject[str]):
     def __post_init__(self) -> None:
         if not self.value or len(self.value.strip()) == 0:
             raise EmptyUsernameError()
@@ -27,9 +25,7 @@ class Username(ValueObject):
 
 
 @dataclass(frozen=True)
-class Email(ValueObject):
-    value: str
-
+class Email(ValueObject[str]):
     def __post_init__(self) -> None:
         email_regex = r"[^@]+@[^@]+\.[^@]+"
         if not re.match(email_regex, self.value):
@@ -37,9 +33,7 @@ class Email(ValueObject):
 
 
 @dataclass(frozen=True)
-class PlainPassword(ValueObject):
-    value: str
-
+class PlainPassword(ValueObject[str]):
     def __post_init__(self) -> None:
         if len(self.value) < 8:
             raise PasswordTooShortError()
@@ -56,5 +50,5 @@ class PlainPassword(ValueObject):
 
 
 @dataclass(frozen=True)
-class HashedPassword(ValueObject):
-    value: str
+class HashedPassword(ValueObject[str]):
+    pass
