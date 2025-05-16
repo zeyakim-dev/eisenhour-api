@@ -16,7 +16,7 @@ from domain.user.exceptions import (
 
 
 @dataclass(frozen=True)
-class UserName(ValueObject):
+class Username(ValueObject):
     value: str
 
     def __post_init__(self) -> None:
