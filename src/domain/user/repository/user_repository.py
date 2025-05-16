@@ -10,17 +10,17 @@ from domain.user.user import User
 
 class UserRepository(Repository[User]):
     def check_username_exists(self, username: str) -> None:
-        if self.is_duplicate_username(username):
+        if self._is_duplicate_username(username):
             raise UsernameAlreadyExistsError(username)
 
     def check_email_exists(self, email: str) -> None:
-        if self.is_duplicate_email(email):
+        if self._is_duplicate_email(email):
             raise EmailAlreadyExistsError(email)
 
     @abstractmethod
-    def is_duplicate_username(self, username: str) -> bool:
+    def _is_duplicate_username(self, username: str) -> bool:
         pass
 
     @abstractmethod
-    def is_duplicate_email(self, email: str) -> bool:
+    def _is_duplicate_email(self, email: str) -> bool:
         pass
