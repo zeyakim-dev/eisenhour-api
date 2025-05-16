@@ -179,3 +179,5 @@ pyrightconfig.json
 docs/build/
 
 settings.json
+
+*.patch
