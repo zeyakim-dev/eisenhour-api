@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta, timezone
-
 import pytest
 
 from domain.user.exceptions import (
@@ -12,45 +10,25 @@ from domain.user.exceptions import (
 )
 from domain.user.user import User
 from domain.user.value_objects import Email, HashedPassword, PlainPassword, Username
-from shared_kernel.hasher.hasher import Hasher
-from shared_kernel.time.time_provider import TimeProvider
+from tests.unit.conftest import FakeHasher, FakeTimeProvider
 
 
-class FakeHasher(Hasher):
-    def hash(self, password: str) -> str:
-        return "hashed_" + password
-
-    def verify(self, password: str, hashed_password: str) -> bool:
-        return "hashed_" + password == hashed_password
-
-
-class FakeTimeProvider(TimeProvider):
-    def now(self) -> datetime:
-        return datetime(2024, 1, 1)
+@pytest.fixture
+def user(time_provider: FakeTimeProvider) -> User:
+    return User.create(
+        time_provider=time_provider,
+        username=Username("테스트유저"),
+        email=Email("test@example.com"),
+        hashed_password=HashedPassword("hashed_Correct_pw_123!"),
+    )
 
 
 class TestUserEntity:
-    @pytest.fixture
-    def time_provider(self) -> TimeProvider:
-        kst_tz = timezone(timedelta(hours=9))
-        return FakeTimeProvider(kst_tz)
-
-    @pytest.fixture
-    def user(self, time_provider: TimeProvider) -> User:
-        return User.create(
-            time_provider=time_provider,
-            username=Username("테스트유저"),
-            email=Email("test@example.com"),
-            hashed_password=HashedPassword("hashed_Correct_pw_123!"),
-        )
-
-    def test_authenticate_success(self, user, time_provider: TimeProvider):
-        hasher = FakeHasher()
+    def test_authenticate_success(self, user, hasher: FakeHasher):
         result = user.authenticate(PlainPassword("Correct_pw_123!"), hasher)
         assert result is True
 
-    def test_authenticate_failure(self, user, time_provider: TimeProvider):
-        hasher = FakeHasher()
+    def test_authenticate_failure(self, user, hasher: FakeHasher):
         wrong_password = "Wrong_pw_123!"
         result = user.authenticate(PlainPassword(wrong_password), hasher)
         assert result is False
@@ -67,14 +45,15 @@ class TestUserEntity:
         ],
     )
     def test_authenticate_invalid_password(
-        self, user, time_provider: TimeProvider, invalid_password, expected_exception
+        self, user, invalid_password, expected_exception
     ):
         hasher = FakeHasher()
         with pytest.raises(expected_exception):
             user.authenticate(PlainPassword(invalid_password), hasher)
 
-    def test_change_password_success(self, user, time_provider: TimeProvider):
-        hasher = FakeHasher()
+    def test_change_password_success(
+        self, user, time_provider: FakeTimeProvider, hasher: FakeHasher
+    ):
         new_user = user.change_password(
             time_provider=time_provider,
             plain_password=PlainPassword("NewPw123!"),
@@ -82,7 +61,7 @@ class TestUserEntity:
         )
 
         assert new_user.hashed_password.value == "hashed_NewPw123!"
-        assert new_user is not user  # 불변 객체이므로 새 인스턴스 반환
+        assert new_user is not user
 
     @pytest.mark.parametrize(
         "invalid_password,expected_exception",
@@ -96,7 +75,11 @@ class TestUserEntity:
         ],
     )
     def test_change_password_invalid(
-        self, user, time_provider: TimeProvider, invalid_password, expected_exception
+        self,
+        user,
+        time_provider: FakeTimeProvider,
+        invalid_password,
+        expected_exception,
     ):
         hasher = FakeHasher()
         with pytest.raises(expected_exception):
