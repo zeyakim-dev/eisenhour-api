@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import pytest
 
@@ -9,14 +8,7 @@ from domain.user.repository.exceptions import (
     UsernameAlreadyExistsError,
 )
 from domain.user.repository.user_repository import UserRepository
-
-
-@dataclass(frozen=True, kw_only=True)
-class FakeUserEntity:
-    id: UUID = field(default_factory=uuid4)
-    username: str
-    email: str
-    password: str
+from tests.unit.conftest import FakeUserEntity
 
 
 class FakeInMemoryUserRepository(UserRepository):
@@ -46,22 +38,12 @@ class FakeInMemoryUserRepository(UserRepository):
 
 
 @pytest.fixture
-def fake_user_1() -> FakeUserEntity:
-    return FakeUserEntity(username="test1", email="test1@test.com", password="test1")
-
-
-@pytest.fixture
-def fake_user_2() -> FakeUserEntity:
-    return FakeUserEntity(username="test2", email="test2@test.com", password="test2")
-
-
-@pytest.fixture
 def repository(
-    fake_user_1: FakeUserEntity, fake_user_2: FakeUserEntity
+    valid_user1: FakeUserEntity, valid_user2: FakeUserEntity
 ) -> FakeInMemoryUserRepository:
     items = {
-        fake_user_1.id: fake_user_1,
-        fake_user_2.id: fake_user_2,
+        valid_user1.id: valid_user1,
+        valid_user2.id: valid_user2,
     }
     return FakeInMemoryUserRepository(items=items)
 
@@ -75,7 +57,10 @@ class TestUserRepository:
     """
 
     def test_check_username_exists_raises_when_duplicate(
-        self, repository: FakeInMemoryUserRepository
+        self,
+        repository: FakeInMemoryUserRepository,
+        valid_user1: FakeUserEntity,
+        valid_user2: FakeUserEntity,
     ):
         """
         중복된 사용자명에 대해 UsernameAlreadyExistsError 예외를 발생시키는지 확인합니다.
@@ -85,9 +70,9 @@ class TestUserRepository:
         Then: UsernameAlreadyExistsError 예외가 발생해야 합니다.
         """
         with pytest.raises(UsernameAlreadyExistsError):
-            repository.check_username_exists("test1")
+            repository.check_username_exists(valid_user1.username)
         with pytest.raises(UsernameAlreadyExistsError):
-            repository.check_username_exists("test2")
+            repository.check_username_exists(valid_user2.username)
 
     def test_check_username_exists_non_existing(
         self, repository: FakeInMemoryUserRepository
@@ -102,7 +87,10 @@ class TestUserRepository:
         repository.check_username_exists("non_existing")
 
     def test_check_email_exists_raises_when_duplicate(
-        self, repository: FakeInMemoryUserRepository
+        self,
+        repository: FakeInMemoryUserRepository,
+        valid_user1: FakeUserEntity,
+        valid_user2: FakeUserEntity,
     ):
         """
         중복된 이메일에 대해 EmailAlreadyExistsError 예외를 발생시키는지 확인합니다.
@@ -112,9 +100,9 @@ class TestUserRepository:
         Then: EmailAlreadyExistsError 예외가 발생해야 합니다.
         """
         with pytest.raises(EmailAlreadyExistsError):
-            repository.check_email_exists("test1@test.com")
+            repository.check_email_exists(valid_user1.email)
         with pytest.raises(EmailAlreadyExistsError):
-            repository.check_email_exists("test2@test.com")
+            repository.check_email_exists(valid_user2.email)
 
     def test_check_email_exists_non_existing(
         self, repository: FakeInMemoryUserRepository
