@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Self
 from uuid import UUID, uuid4
 
-from domain.shared.time_provider import TimeProvider
+from shared_kernel.time.time_provider import TimeProvider
 
 
 @dataclass(frozen=True, kw_only=True)
