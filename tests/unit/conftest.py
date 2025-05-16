@@ -82,11 +82,11 @@ class FakeUserInMemoryRepository:
 
     def check_username_exists(self, username: str) -> None:
         if any(user.username == username for user in self.items.values()):
-            raise UsernameAlreadyExistsError()
+            raise UsernameAlreadyExistsError(username)
 
     def check_email_exists(self, email: str) -> None:
         if any(user.email == email for user in self.items.values()):
-            raise EmailAlreadyExistsError()
+            raise EmailAlreadyExistsError(email)
 
 
 @pytest.fixture
