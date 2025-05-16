@@ -11,7 +11,7 @@ from domain.user.exceptions import (
     PasswordTooShortError,
 )
 from domain.user.user import User
-from domain.user.value_objects import Email, HashedPassword, PlainPassword, UserName
+from domain.user.value_objects import Email, HashedPassword, PlainPassword, Username
 from shared_kernel.hasher.hasher import Hasher
 from shared_kernel.time.time_provider import TimeProvider
 
@@ -39,7 +39,7 @@ class TestUserEntity:
     def user(self, time_provider: TimeProvider) -> User:
         return User.create(
             time_provider=time_provider,
-            name=UserName("테스트유저"),
+            username=Username("테스트유저"),
             email=Email("test@example.com"),
             hashed_password=HashedPassword("hashed_Correct_pw_123!"),
         )
