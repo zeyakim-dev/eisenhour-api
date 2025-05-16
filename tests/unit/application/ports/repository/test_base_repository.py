@@ -3,8 +3,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from domain.application.ports.repository.exceptions import EntityNotFoundError
-from domain.application.ports.repository.repository import Repository
+from application.ports.repository.exceptions import EntityNotFoundError
+from application.ports.repository.repository import Repository
 from domain.base.entity import Entity
 
 
