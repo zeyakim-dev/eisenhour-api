@@ -1,4 +1,3 @@
-from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 
 import pytest
@@ -6,14 +5,7 @@ import pytest
 from application.ports.repository.exceptions import EntityNotFoundError
 from application.ports.repository.repository import Repository
 from domain.base.entity import Entity
-
-
-@dataclass(frozen=True, kw_only=True)
-class FakeUserEntity:
-    id: UUID = field(default_factory=uuid4)
-    username: str
-    email: str
-    password: str
+from tests.unit.conftest import FakeUserEntity
 
 
 class FakeInMemoryRepository(Repository):
@@ -37,43 +29,31 @@ class FakeInMemoryRepository(Repository):
 
 
 @pytest.fixture
-def fake_user_1() -> FakeUserEntity:
-    return FakeUserEntity(username="test1", email="test1@test.com", password="test1")
-
-
-@pytest.fixture
-def fake_user_2() -> FakeUserEntity:
-    return FakeUserEntity(username="test2", email="test2@test.com", password="test2")
-
-
-@pytest.fixture
-def repository(
-    fake_user_1: FakeUserEntity, fake_user_2: FakeUserEntity
-) -> FakeInMemoryRepository:
+def repository(valid_user1, valid_user2) -> FakeInMemoryRepository:
     items = {
-        fake_user_1.id: fake_user_1,
-        fake_user_2.id: fake_user_2,
+        valid_user1.id: valid_user1,
+        valid_user2.id: valid_user2,
     }
     return FakeInMemoryRepository(items=items)
 
 
 class TestBaseRepository:
     def test_save_new_entity(self, repository: FakeInMemoryRepository):
-        user = FakeUserEntity(
+        new_user = FakeUserEntity(
             username="test2", email="test2@test.com", password="test2"
         )
-        repository.save(user)
-        assert user.id in repository.items
-        assert repository.items[user.id] == user
+        repository.save(new_user)
+        assert new_user.id in repository.items
+        assert repository.items[new_user.id] == new_user
 
     def test_save_existing_entity_overwrites_data(
-        self, repository: FakeInMemoryRepository, fake_user_1: FakeUserEntity
+        self, repository: FakeInMemoryRepository, valid_user1: FakeUserEntity
     ):
         new_password = "new_password"
         changed_entity = FakeUserEntity(
-            id=fake_user_1.id,
-            username=fake_user_1.username,
-            email=fake_user_1.email,
+            id=valid_user1.id,
+            username=valid_user1.username,
+            email=valid_user1.email,
             password=new_password,
         )
         repository.save(changed_entity)
@@ -82,9 +62,9 @@ class TestBaseRepository:
         assert repository.items.get(changed_entity.id).password == new_password
 
     def test_get_success(
-        self, repository: FakeInMemoryRepository, fake_user_1: FakeUserEntity
+        self, repository: FakeInMemoryRepository, valid_user1: FakeUserEntity
     ):
-        assert repository.get(fake_user_1.id) == fake_user_1
+        assert repository.get(valid_user1.id) == valid_user1
 
     def test_get_non_existing_entity(self, repository: FakeInMemoryRepository):
         non_existing_id = uuid4()
@@ -92,10 +72,10 @@ class TestBaseRepository:
             repository.get(non_existing_id)
 
     def test_delete(
-        self, repository: FakeInMemoryRepository, fake_user_2: FakeUserEntity
+        self, repository: FakeInMemoryRepository, valid_user2: FakeUserEntity
     ):
-        repository.delete(fake_user_2.id)
-        assert fake_user_2.id not in repository.items
+        repository.delete(valid_user2.id)
+        assert valid_user2.id not in repository.items
 
     def test_delete_non_existing_entity(self, repository: FakeInMemoryRepository):
         non_existing_id = uuid4()

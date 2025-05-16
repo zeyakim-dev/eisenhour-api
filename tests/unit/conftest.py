@@ -41,7 +41,7 @@ def hasher():
 class FakeUserEntity:
     id: UUID = field(default_factory=uuid4)
 
-    created_at: datetime = field(default_factory=datetime.now())
+    created_at: datetime = field(default_factory=datetime.now)
     username: str
     email: str
     password: str
