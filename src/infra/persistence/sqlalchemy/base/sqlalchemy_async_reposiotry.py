@@ -6,10 +6,11 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.base.entity import Entity
-from infra.persistence.base.mapper import Mapper, PersistenceModel
+from infra.persistence.base.mapper import Mapper
+from infra.persistence.sqlalchemy.base.model import SQLAlchemyModel
 
 E = TypeVar("E", bound=Entity)
-M = TypeVar("M", bound=PersistenceModel)
+M = TypeVar("M", bound=SQLAlchemyModel)
 
 
 class ModelNotFoundError(Exception):
