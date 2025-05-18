@@ -19,8 +19,9 @@ def user_register_command_handler(fake_user_inmemory_repository, time_provider, 
     )
 
 
+@pytest.mark.asyncio
 class TestUserRegisterCommand:
-    def test_successful_registration(
+    async def test_successful_registration(
         self, user_register_command_handler, time_provider
     ):
         command = UserRegisterCommand.create(
@@ -30,11 +31,11 @@ class TestUserRegisterCommand:
             plain_password="Secret_123!",
         )
 
-        result = user_register_command_handler.execute(command)
+        result = await user_register_command_handler.execute(command)
         assert result.username == "newuser"
         assert result.email == "newuser@example.com"
 
-    def test_duplicate_username_raises_error(
+    async def test_duplicate_username_raises_error(
         self, user_register_command_handler, time_provider, valid_user1
     ):
         command = UserRegisterCommand.create(
@@ -45,9 +46,9 @@ class TestUserRegisterCommand:
         )
 
         with pytest.raises(UsernameAlreadyExistsError):
-            user_register_command_handler.execute(command)
+            await user_register_command_handler.execute(command)
 
-    def test_duplicate_email_raises_error(
+    async def test_duplicate_email_raises_error(
         self, user_register_command_handler, time_provider, valid_user2
     ):
         command = UserRegisterCommand.create(
@@ -58,4 +59,4 @@ class TestUserRegisterCommand:
         )
 
         with pytest.raises(EmailAlreadyExistsError):
-            user_register_command_handler.execute(command)
+            await user_register_command_handler.execute(command)

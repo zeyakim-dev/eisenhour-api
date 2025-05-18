@@ -61,31 +61,32 @@ def valid_user2():
     )
 
 
-class FakeUserInMemoryRepository:
+class FakeInMemoryAsyncUserRepository:
+    """비동기 메모리 기반 UserRepository Fake 구현체."""
+
     def __init__(self, items: dict[UUID, FakeUserEntity] | None = None):
         self.items = items or {}
 
-    def save(self, entity: FakeUserEntity) -> None:
+    async def save(self, entity: FakeUserEntity) -> None:
         self.items[entity.id] = entity
 
-    def get(self, id: UUID) -> FakeUserEntity:
+    async def get(self, id: UUID) -> FakeUserEntity:
         try:
             return self.items[id]
         except KeyError:
             raise EntityNotFoundError(self.__class__.__name__, id)
 
-    def delete(self, id: UUID) -> None:
-        try:
-            del self.items[id]
-        except KeyError:
+    async def delete(self, id: UUID) -> None:
+        if id not in self.items:
             raise EntityNotFoundError(self.__class__.__name__, id)
+        del self.items[id]
 
-    def check_username_exists(self, username: str) -> None:
-        if any(user.username == username for user in self.items.values()):
+    async def check_username_exists(self, username: str) -> None:
+        if any(u.username == username for u in self.items.values()):
             raise UsernameAlreadyExistsError(username)
 
-    def check_email_exists(self, email: str) -> None:
-        if any(user.email == email for user in self.items.values()):
+    async def check_email_exists(self, email: str) -> None:
+        if any(u.email == email for u in self.items.values()):
             raise EmailAlreadyExistsError(email)
 
 
@@ -94,4 +95,4 @@ def fake_user_inmemory_repository(
     valid_user1: FakeUserEntity, valid_user2: FakeUserEntity
 ):
     items = {valid_user1.id: valid_user1, valid_user2.id: valid_user2}
-    return FakeUserInMemoryRepository(items=items)
+    return FakeInMemoryAsyncUserRepository(items=items)
