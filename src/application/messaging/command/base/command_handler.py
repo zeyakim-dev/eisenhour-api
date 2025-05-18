@@ -17,5 +17,5 @@ R = TypeVar("R", bound=CommandResult)
 
 class CommandHandler(ABC, Generic[C, R]):
     @abstractmethod
-    def execute(self, command: C) -> R:
+    async def execute(self, command: C) -> R:
         raise NotImplementedError
