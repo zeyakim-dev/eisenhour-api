@@ -3,5 +3,8 @@ services:
     build:
       context: ../..
       dockerfile: docker/test/Dockerfile
+    volumes:
+      - ./:/app
     environment:
-      TEST_PATHS: ${UNIT_TEST_PATHS}
+      TEST_PATHS: ${UNIT_TEST_PATHS:-tests/unit}
+      ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}

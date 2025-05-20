@@ -14,9 +14,12 @@ services:
     build:
       context: ../..
       dockerfile: docker/test/Dockerfile
+    volumes:
+      - ./:/app
     depends_on:
       db:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/postgres
-      TEST_PATHS: ${INTEGRATION_TEST_PATHS}
+      TEST_PATHS: ${INTEGRATION_TEST_PATHS:-tests/integration}
+      ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
