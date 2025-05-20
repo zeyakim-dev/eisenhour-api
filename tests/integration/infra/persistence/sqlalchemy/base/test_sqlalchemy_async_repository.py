@@ -91,7 +91,7 @@ async def stub_repository(
     db_session: AsyncSession, time_provider: TimeProvider, test_entity: StubEntity
 ) -> StubRepository:
     test_repository = StubRepository(db_session, StubMapper())
-    await test_repository._save(test_entity)
+    db_session.add(test_entity)
     await db_session.flush()
     return test_repository
 
