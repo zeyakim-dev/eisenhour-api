@@ -1,7 +1,7 @@
 services:
-  e2e-test:
+  unit-test:
     build:
       context: ../..
       dockerfile: docker/test/Dockerfile
     environment:
-      TEST_PATHS: ${E2E_TEST_PATHS}
+      TEST_PATHS: ${UNIT_TEST_PATHS}
