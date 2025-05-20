@@ -7,7 +7,7 @@ engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False, future=
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="session")
 async def prepare_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -15,7 +15,7 @@ async def prepare_db():
 
 
 @pytest_asyncio.fixture
-async def db_session():
+async def db_session(prepare_db):
     async with AsyncSessionLocal() as session:
         # 최상위 트랜잭션 시작
         await session.begin()

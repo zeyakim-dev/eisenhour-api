@@ -38,3 +38,7 @@ python_files = [
 ]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "unit",
+    "integration"
+]
