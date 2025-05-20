@@ -20,4 +20,4 @@ ENV PYTHONPATH=/app
 
 ENTRYPOINT []
 
-CMD ["uv", "run", "pytest"]
+CMD uv run pytest ${TEST_PATHS}
