@@ -1,0 +1,48 @@
+name: Main Push Full Test
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  full-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test_target: [unit, integration, e2e]
+
+    env:
+      ENABLE_COVERAGE: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests for ${{ matrix.test_target }}
+        run: |
+          docker compose -f docker/test/compose.${{ matrix.test_target }}.yml up \
+            --build \
+            --abort-on-container-exit
+
+      - name: Move coverage file for ${{ matrix.test_target }}
+        run: |
+          test -f .coverage && mv .coverage .coverage.${{ matrix.test_target }} || \
+            (echo ".coverage not found after ${{ matrix.test_target }} tests" && exit 1)
+
+  combine-coverage:
+    runs-on: ubuntu-latest
+    needs: full-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Combine and report coverage
+        run: |
+          pip install coverage
+          coverage combine .coverage.unit .coverage.integration .coverage.e2e
+          coverage report
+          coverage xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage.xml
+          path: coverage.xml

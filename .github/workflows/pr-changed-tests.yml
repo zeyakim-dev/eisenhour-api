@@ -1,0 +1,64 @@
+name: PR Changed Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      unit_files: ${{ steps.filter.outputs.unit_files }}
+      integration_files: ${{ steps.filter.outputs.integration_files }}
+      e2e_files: ${{ steps.filter.outputs.e2e_files }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          base: origin/${{ github.base_ref }}
+          filters: |
+            unit:
+              - added|modified: 'tests/unit/**'
+              - regex: '^tests/unit/.*/test_.*\.py$'
+            integration:
+              - added|modified: 'tests/integration/**'
+              - regex: '^tests/integration/.*/test_.*\.py$'
+            e2e:
+              - added|modified: 'tests/e2e/**'
+              - regex: '^tests/e2e/.*/test_.*\.py$'
+
+  run-tests:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - target: unit
+            files: ${{ needs.detect-changes.outputs.unit_files }}
+          - target: integration
+            files: ${{ needs.detect-changes.outputs.integration_files }}
+          - target: e2e
+            files: ${{ needs.detect-changes.outputs.e2e_files }}
+
+    # 변경된 파일이 있는 경우에만 실행
+    if: ${{ matrix.files != '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run changed tests for ${{ matrix.target }}
+        env:
+          UNIT_TEST_PATHS: ${{ matrix.files }}
+          INTEGRATION_TEST_PATHS: ${{ matrix.files }}
+          E2E_TEST_PATHS: ${{ matrix.files }}
+        run: |
+          docker compose -f docker/test/compose.${{ matrix.target }}.yml up \
+            --build \
+            --abort-on-container-exit \
+            --exit-code-from ${{ matrix.target }}-test
