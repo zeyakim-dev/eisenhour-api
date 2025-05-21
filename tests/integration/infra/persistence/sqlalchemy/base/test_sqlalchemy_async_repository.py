@@ -86,12 +86,17 @@ def test_entity(time_provider: TimeProvider):
     return StubEntity.create(time_provider=time_provider, name="test")
 
 
+@pytest.fixture
+def test_model(test_entity: StubEntity) -> StubModel:
+    return StubMapper().to_model(test_entity)
+
+
 @pytest_asyncio.fixture
 async def stub_repository(
-    db_session: AsyncSession, time_provider: TimeProvider, test_entity: StubEntity
+    db_session: AsyncSession, time_provider: TimeProvider, test_model: StubModel
 ) -> StubRepository:
     test_repository = StubRepository(db_session, StubMapper())
-    db_session.add(test_entity)
+    db_session.add(test_model)
     await db_session.flush()
     return test_repository
 
@@ -160,16 +165,24 @@ class TestSQLAlchemyAsyncRepository:
 
         assert model.id == entity.id
         assert model.name == entity.name
-        assert model.created_at == entity.created_at.replace(tzinfo=None)
-        assert model.updated_at == entity.updated_at.replace(tzinfo=None)
+        assert model.created_at.replace(tzinfo=None) == entity.created_at.replace(
+            tzinfo=None
+        )
+        assert model.updated_at.replace(tzinfo=None) == entity.updated_at.replace(
+            tzinfo=None
+        )
 
     async def test_get(self, stub_repository: StubRepository, test_entity: StubEntity):
         model = await stub_repository._get(test_entity.id)
 
         assert model.id == test_entity.id
         assert model.name == test_entity.name
-        assert model.created_at == test_entity.created_at.replace(tzinfo=None)
-        assert model.updated_at == test_entity.updated_at.replace(tzinfo=None)
+        assert model.created_at.replace(tzinfo=None) == test_entity.created_at.replace(
+            tzinfo=None
+        )
+        assert model.updated_at.replace(tzinfo=None) == test_entity.updated_at.replace(
+            tzinfo=None
+        )
 
     async def test_delete(
         self,
