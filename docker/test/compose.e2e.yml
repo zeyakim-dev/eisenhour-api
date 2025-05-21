@@ -6,5 +6,5 @@ services:
     volumes:
       - ../../:/app
     environment:
-      TEST_PATHS: ${E2E_TEST_PATHS:-tests/e2e}
-      ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
+      TEST_TARGETS: ${TEST_TARGETS:-tests/e2e}
+      COV_OPT: ${COV_OPT:-}

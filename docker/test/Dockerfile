@@ -2,12 +2,12 @@ FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
 WORKDIR /app
 
-ENV UV_COMPILE_BYTECODE=1
-ENV UV_LINK_MODE=copy
-ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONPATH=/app
-ENV ENABLE_COVERAGE=false
-ENV TEST_PATHS="tests/"
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH=/app \
+    TEST_TARGETS=tests/ \
+    COV_OPT=""
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
@@ -21,4 +21,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENTRYPOINT []
 
-CMD sh -c "uv run pytest $TEST_PATHS $( [ \"$ENABLE_COVERAGE\" = true ] && echo '--cov=src/' )"
+CMD sh -c "uv run pytest ${TEST_TARGETS} ${COV_OPT}"

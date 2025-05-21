@@ -6,5 +6,6 @@ services:
     volumes:
       - ../../:/app
     environment:
-      TEST_PATHS: ${UNIT_TEST_PATHS:-tests/unit}
-      ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
+      TEST_TARGETS: ${TEST_TARGETS:-tests/unit}
+      COV_OPT: ${COV_OPT:-}
+    
