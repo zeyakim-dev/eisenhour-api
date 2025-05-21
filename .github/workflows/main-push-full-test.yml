@@ -1,0 +1,45 @@
+name: Main Push Full Test
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  full-test-with-coverage:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test-scope: [unit, integration, e2e]
+
+    env:
+      ENABLE_COVERAGE: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests for ${{ matrix.test-scope }}
+        env:
+          TEST_SCOPE: ${{ matrix.test-scope }}
+          TEST_TARGETS: tests/${{ matrix.test-scope}}/
+          ENABLE_COVERAGE: true
+        run: |
+          make test 
+
+  combine-coverage:
+    runs-on: ubuntu-latest
+    needs: full-test-with-coverage
+    steps:
+      - uses: actions/checkout@v4
+      - name: Combine and report coverage
+        run: |
+          pip install coverage
+          coverage combine .coverage.unit .coverage.integration .coverage.e2e
+          coverage report
+          coverage xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage.xml
+          path: coverage.xml

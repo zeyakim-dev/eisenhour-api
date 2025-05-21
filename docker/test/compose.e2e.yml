@@ -1,0 +1,10 @@
+services:
+  e2e-test:
+    build:
+      context: ../..
+      dockerfile: docker/test/Dockerfile
+    volumes:
+      - ../../:/app
+    environment:
+      TEST_TARGETS: ${TEST_TARGETS:-tests/e2e}
+      COV_OPT: ${COV_OPT:-}

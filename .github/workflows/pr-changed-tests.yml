@@ -1,0 +1,60 @@
+name: PR Changed Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          list-files: json
+          filters: |
+            unit:
+              - added|modified: 'tests/unit/**'
+              - regex: '^tests/unit/.*/test_.*\.py$'
+            integration:
+              - added|modified: 'tests/integration/**'
+              - regex: '^tests/integration/.*/test_.*\.py$'
+            e2e:
+              - added|modified: 'tests/e2e/**'
+              - regex: '^tests/e2e/.*/test_.*\.py$'
+
+      - id: set-matrix
+        run: |
+          echo "matrix=$(jq -n \
+            --argjson unit "${{ steps.filter.outputs.unit_files }}" \
+            --argjson integration "${{ steps.filter.outputs.integration_files }}" \
+            --argjson e2e "${{ steps.filter.outputs.e2e_files }}" \
+            '[
+              { test_scope: "unit", test_targets: $unit },
+              { test_scope: "integration", test_targets: $integration },
+              { test_scope: "e2e", test_targets: $e2e }
+            ] | map(select(.test_targets | length > 0))')" >> $GITHUB_OUTPUT
+
+  run-tests:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run tests for ${{ matrix.test_scope }}
+        env:
+          TEST_SCOPE: ${{ matrix.test_scope }}
+          TEST_TARGETS: ${{ join(matrix.test_targets, ' ') }}
+        run: |
+          make test
