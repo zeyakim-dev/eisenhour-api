@@ -21,6 +21,7 @@ jobs:
       - name: Run tests for ${{ matrix.test-scope }}
         env:
           TEST_SCOPE: ${{ matrix.test-scope }}
+          TEST_TARGETS: tests/${{ matrix.test-scope}}/
           ENABLE_COVERAGE: true
         run: |
           make test 

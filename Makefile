@@ -13,7 +13,7 @@ else
 endif
 
 ifeq ($(ENABLE_COVERAGE), true)
-	CPY_COV_CMD := docker cp $(TEST_SCOPE)-test:/app/.coverage ./coverage.$(TEST_SCOPE)
+	CPY_COV_CMD := docker cp test-$(TEST_SCOPE)-test-1:/app/.coverage ./coverage.$(TEST_SCOPE)
 else
 	CPY_COV_CMD :=
 endif
