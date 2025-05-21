@@ -4,7 +4,7 @@ services:
       context: ../..
       dockerfile: docker/test/Dockerfile
     volumes:
-      - ./:/app
+      - ../../:/app
     environment:
       TEST_PATHS: ${E2E_TEST_PATHS:-tests/e2e}
       ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}

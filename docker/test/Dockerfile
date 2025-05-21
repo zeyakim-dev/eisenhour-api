@@ -9,11 +9,10 @@ ENV PYTHONPATH=/app
 ENV ENABLE_COVERAGE=false
 ENV TEST_PATHS="tests/"
 
-# Dependencies first
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
+    uv sync --frozen
 
 ADD . /app
 
@@ -22,4 +21,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENTRYPOINT []
 
-CMD sh -c "uv run pytest $TEST_PATHS ${ENABLE_COVERAGE:+--cov=src/}"
+CMD sh -c "uv run pytest $TEST_PATHS $( [ \"$ENABLE_COVERAGE\" = true ] && echo '--cov=src/' )"
