@@ -8,17 +8,16 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      unit_files: ${{ steps.filter.outputs.unit_files }}
-      integration_files: ${{ steps.filter.outputs.integration_files }}
-      e2e_files: ${{ steps.filter.outputs.e2e_files }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - id: filter
         uses: dorny/paths-filter@v3
         with:
-          base: origin/${{ github.base_ref }}
+          list-files: json
           filters: |
             unit:
               - added|modified: 'tests/unit/**'
@@ -30,35 +29,32 @@ jobs:
               - added|modified: 'tests/e2e/**'
               - regex: '^tests/e2e/.*/test_.*\.py$'
 
+      - id: set-matrix
+        run: |
+          echo "matrix=$(jq -n \
+            --argjson unit "${{ steps.filter.outputs.unit_files }}" \
+            --argjson integration "${{ steps.filter.outputs.integration_files }}" \
+            --argjson e2e "${{ steps.filter.outputs.e2e_files }}" \
+            '[
+              { test_scope: "unit", test_targets: $unit },
+              { test_scope: "integration", test_targets: $integration },
+              { test_scope: "e2e", test_targets: $e2e }
+            ] | map(select(.test_targets | length > 0))')" >> $GITHUB_OUTPUT
+
   run-tests:
     needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
     runs-on: ubuntu-latest
-
     strategy:
-      matrix:
-        include:
-          - target: unit
-            files: ${{ needs.detect-changes.outputs.unit_files }}
-          - target: integration
-            files: ${{ needs.detect-changes.outputs.integration_files }}
-          - target: e2e
-            files: ${{ needs.detect-changes.outputs.e2e_files }}
-
-    # 변경된 파일이 있는 경우에만 실행
-    if: ${{ matrix.files != '' }}
-
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run changed tests for ${{ matrix.target }}
+      - name: Run tests for ${{ matrix.test_scope }}
         env:
-          UNIT_TEST_PATHS: ${{ matrix.files }}
-          INTEGRATION_TEST_PATHS: ${{ matrix.files }}
-          E2E_TEST_PATHS: ${{ matrix.files }}
+          TEST_SCOPE: ${{ matrix.test_scope }}
+          TEST_TARGETS: ${{ join(matrix.test_targets, ' ') }}
         run: |
-          docker compose -f docker/test/compose.${{ matrix.target }}.yml up \
-            --build \
-            --abort-on-container-exit \
-            --exit-code-from ${{ matrix.target }}-test
+          make test
