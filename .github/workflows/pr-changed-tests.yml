@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: make test TEST_SCOPE=unit TEST_TARGETS=${{ needs.detect-changes.outputs.unit_files }}
+      - run: make test TEST_SCOPE=unit TEST_TARGETS=${{ join(fromJson(needs.detect-changes.outputs.unit_files), ' ') }}
 
   integration-tests:
     needs: detect-changes
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: make test TEST_SCOPE=integration TEST_TARGETS=${{ needs.detect-changes.outputs.integration_files }}
+      - run: make test TEST_SCOPE=integration TEST_TARGETS=${{ join(fromJson(needs.detect-changes.outputs.integration_files), ' ') }}
 
   e2e-tests:
     needs: detect-changes
@@ -53,4 +53,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: make test TEST_SCOPE=e2e TEST_TARGETS=${{ needs.detect-changes.outputs.e2e_files }}
+      - run: make test TEST_SCOPE=e2e TEST_TARGETS=${{ join(fromJson(needs.detect-changes.outputs.e2e_files), ' ') }}
