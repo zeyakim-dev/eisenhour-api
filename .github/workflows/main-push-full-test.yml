@@ -5,41 +5,58 @@ on:
     branches: [ main ]
 
 jobs:
-  full-test-with-coverage:
+  test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         test-scope: [unit, integration, e2e]
 
-    env:
-      ENABLE_COVERAGE: true
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run tests for ${{ matrix.test-scope }}
+      - name: Run ${{ matrix.test-scope }} tests
         env:
           TEST_SCOPE: ${{ matrix.test-scope }}
-          TEST_TARGETS: tests/${{ matrix.test-scope}}/
+          TEST_TARGETS: tests/${{ matrix.test-scope }}/
           ENABLE_COVERAGE: true
         run: |
-          make test 
+          mkdir -p coverage
+          make test
 
-  combine-coverage:
-    runs-on: ubuntu-latest
-    needs: full-test-with-coverage
-    steps:
-      - uses: actions/checkout@v4
-      - name: Combine and report coverage
-        run: |
-          pip install coverage
-          coverage combine .coverage.unit .coverage.integration .coverage.e2e
-          coverage report
-          coverage xml
-
-      - name: Upload coverage report
+      - name: Upload .coverage.${{ matrix.test-scope }}
         uses: actions/upload-artifact@v4
         with:
-          name: coverage.xml
-          path: coverage.xml
+          name: coverage-${{ matrix.test-scope }}
+          path: coverage/.coverage.${{ matrix.test-scope }}
+          include-hidden-files: true
+
+  combine:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: coverage-files
+
+      - name: Combine coverage files
+        run: |
+          pip install coverage
+          coverage combine --debug=pathmap \
+            coverage-files/coverage-unit/.coverage.unit \
+            coverage-files/coverage-integration/.coverage.integration \
+            coverage-files/coverage-e2e/.coverage.e2e
+          coverage report -i
+          coverage xml
+          coverage html -d htmlcov
+
+      - name: Upload combined coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
+          include-hidden-files: true

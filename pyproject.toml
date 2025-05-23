@@ -45,3 +45,12 @@ markers = [
     "integration",
     "e2e"
 ]
+
+[tool.coverage.run]
+relative_files = true
+
+[tool.coverage.paths]
+source = [
+    "src/",  
+    "app/src"
+]

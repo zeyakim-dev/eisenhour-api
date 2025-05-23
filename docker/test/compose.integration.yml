@@ -16,7 +16,7 @@ services:
       context: ../..
       dockerfile: docker/test/Dockerfile
     volumes:
-      - ../../:/app
+      - ${PWD}/coverage:/app/coverage
     depends_on:
       db:
         condition: service_healthy
@@ -24,3 +24,4 @@ services:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/postgres
       TEST_TARGETS: ${TEST_TARGETS:-tests/integration}
       COV_OPT: ${COV_OPT:-}
+      COVERAGE_FILE: coverage/.coverage.integration

@@ -5,8 +5,9 @@ services:
       context: ../..
       dockerfile: docker/test/Dockerfile
     volumes:
-      - ../../:/app
+      - ${PWD}/coverage:/app/coverage
     environment:
       TEST_TARGETS: ${TEST_TARGETS:-tests/unit}
       COV_OPT: ${COV_OPT:-}
+      COVERAGE_FILE: coverage/.coverage.unit
     
