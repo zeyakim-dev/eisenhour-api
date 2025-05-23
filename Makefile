@@ -13,12 +13,12 @@ else
 endif
 
 ifeq ($(ENABLE_COVERAGE), true)
-	CPY_COV_CMD := docker cp test-$(TEST_SCOPE)-test-1:/app/.coverage ./coverage.$(TEST_SCOPE)
+	CPY_COV_CMD := docker cp test-$(TEST_SCOPE)-test:/app/.coverage ./coverage.$(TEST_SCOPE)
 else
 	CPY_COV_CMD :=
 endif
 
-ifeq ($(ENABLE_CLEANUP),true)
+ifeq ($(ENABLE_CLEANUP), true)
 	CLEANUP_CMD := docker compose -f docker/test/compose.$(TEST_SCOPE).yml down
 else
 	CLEANUP_CMD :=
