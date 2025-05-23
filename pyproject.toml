@@ -42,5 +42,6 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [
     "unit",
-    "integration"
+    "integration",
+    "e2e"
 ]
