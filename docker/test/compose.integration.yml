@@ -11,6 +11,7 @@ services:
       timeout: 5s
       retries: 5
   integration-test:
+    container_name: integration-test
     build:
       context: ../..
       dockerfile: docker/test/Dockerfile
@@ -19,7 +20,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:
+    environment:  
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/postgres
       TEST_TARGETS: ${TEST_TARGETS:-tests/integration}
       COV_OPT: ${COV_OPT:-}

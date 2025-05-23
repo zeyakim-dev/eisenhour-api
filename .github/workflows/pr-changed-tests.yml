@@ -8,7 +8,9 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      unit_files: ${{ steps.filter.outputs.unit_files }}
+      integration_files: ${{ steps.filter.outputs.integration_files }}
+      e2e_files: ${{ steps.filter.outputs.e2e_files }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,32 +31,26 @@ jobs:
               - added|modified: 'tests/e2e/**'
               - regex: '^tests/e2e/.*/test_.*\.py$'
 
-      - id: set-matrix
-        run: |
-          echo "matrix=$(jq -n \
-            --argjson unit "${{ steps.filter.outputs.unit_files }}" \
-            --argjson integration "${{ steps.filter.outputs.integration_files }}" \
-            --argjson e2e "${{ steps.filter.outputs.e2e_files }}" \
-            '[
-              { test_scope: "unit", test_targets: $unit },
-              { test_scope: "integration", test_targets: $integration },
-              { test_scope: "e2e", test_targets: $e2e }
-            ] | map(select(.test_targets | length > 0))')" >> $GITHUB_OUTPUT
-
-  run-tests:
+  unit-tests:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
+    if: needs.detect-changes.outputs.unit_files != '[]'
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - run: make test TEST_SCOPE=unit TEST_TARGETS="${{ join(fromJson(needs.detect-changes.outputs.unit_files), ' ') }}"
 
-      - name: Run tests for ${{ matrix.test_scope }}
-        env:
-          TEST_SCOPE: ${{ matrix.test_scope }}
-          TEST_TARGETS: ${{ join(matrix.test_targets, ' ') }}
-        run: |
-          make test
+  integration-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.integration_files != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test TEST_SCOPE=integration TEST_TARGETS="${{ join(fromJson(needs.detect-changes.outputs.integration_files), ' ') }}"
+
+  e2e-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.e2e_files != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test TEST_SCOPE=e2e TEST_TARGETS="${{ join(fromJson(needs.detect-changes.outputs.e2e_files), ' ') }}"

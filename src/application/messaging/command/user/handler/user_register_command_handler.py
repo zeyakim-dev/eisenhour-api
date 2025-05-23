@@ -33,22 +33,7 @@ class UserRegisterCommandHandler(
         self.time_provider = time_provider
         self.hasher = hasher
 
-    def execute(self, command: UserRegisterCommand) -> UserRegisterCommandResult:
-        """사용자 등록 커맨드를 실행한다.
-
-        사용자명, 이메일의 중복 여부를 확인하고, 비밀번호를 해시한다.
-        생성된 사용자 엔터티는 저장소에 영속화되며, ID와 정보를 결과로 반환한다.
-
-        Args:
-            command (UserRegisterCommand): 사용자명, 이메일, 평문 비밀번호 포함.
-
-        Returns:
-            UserRegisterCommandResult: 생성된 사용자 ID, 이름, 이메일 정보.
-
-        Raises:
-            UsernameAlreadyExistsError: 사용자명이 이미 존재하는 경우.
-            EmailAlreadyExistsError: 이메일이 이미 존재하는 경우.
-        """
+    async def execute(self, command: UserRegisterCommand) -> UserRegisterCommandResult:
         username = Username(command.username)
         email = Email(command.email)
         plain_password = PlainPassword(command.plain_password)
@@ -56,8 +41,8 @@ class UserRegisterCommandHandler(
         hashed_password_value = self.hasher.hash(plain_password.value)
         hashed_password = HashedPassword(hashed_password_value)
 
-        self.repository.check_username_exists(username.value)
-        self.repository.check_email_exists(email.value)
+        await self.repository.check_username_exists(username.value)
+        await self.repository.check_email_exists(email.value)
 
         user = User.create(
             time_provider=self.time_provider,
@@ -66,7 +51,7 @@ class UserRegisterCommandHandler(
             hashed_password=hashed_password,
         )
 
-        self.repository.save(user)
+        await self.repository.save(user)
 
         return UserRegisterCommandResult(
             id=str(user.id), username=user.username.value, email=user.email.value

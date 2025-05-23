@@ -1,5 +1,6 @@
 services:
   e2e-test:
+    container_name: e2e-test
     build:
       context: ../..
       dockerfile: docker/test/Dockerfile
