@@ -26,8 +26,8 @@ endif
 
 # === 테스트 실행 ===
 test:
-	TEST_TARGETS=$(TEST_TARGETS) \
-	COV_OPT=$(COV_OPT) \
+	@export TEST_TARGETS="$(TEST_TARGETS)"; \
+	COV_OPT="$(COV_OPT)"; \
 	docker compose -f docker/test/compose.$(TEST_SCOPE).yml up --build \
 		--abort-on-container-exit \
 		--exit-code-from $(TEST_SCOPE)-test \
