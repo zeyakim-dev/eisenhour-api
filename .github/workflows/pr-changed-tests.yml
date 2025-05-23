@@ -32,14 +32,18 @@ jobs:
       - id: set-matrix
         run: |
           echo "matrix=$(jq -n \
-            --argjson unit "${{ steps.filter.outputs.unit_files }}" \
-            --argjson integration "${{ steps.filter.outputs.integration_files }}" \
-            --argjson e2e "${{ steps.filter.outputs.e2e_files }}" \
+            --argjson unit "$(echo '${{ steps.filter.outputs.unit_files }}' | jq -R 'split(" ")')" \
+            --argjson integration "$(echo '${{ steps.filter.outputs.integration_files }}' | jq -R 'split(" ")')" \
+            --argjson e2e "$(echo '${{ steps.filter.outputs.e2e_files }}' | jq -R 'split(" ")')" \
             '[
               { test_scope: "unit", test_targets: $unit },
               { test_scope: "integration", test_targets: $integration },
               { test_scope: "e2e", test_targets: $e2e }
             ] | map(select(.test_targets | length > 0))')" >> $GITHUB_OUTPUT
+
+      - name: Print matrix
+        run: |
+          echo "Matrix: ${{ toJson(fromJson(needs.detect-changes.outputs.matrix)) }}"
 
   run-tests:
     needs: detect-changes
