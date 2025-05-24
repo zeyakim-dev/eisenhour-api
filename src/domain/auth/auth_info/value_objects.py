@@ -9,7 +9,7 @@ class AuthTypeEnum(Enum):
     GOOGLE = "GOOGLE"
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(frozen=True)
 class AuthType(ValueObject[AuthTypeEnum]):
     value: AuthTypeEnum = field(default=AuthTypeEnum.LOCAL)
 
