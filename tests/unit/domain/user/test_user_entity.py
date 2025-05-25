@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 from domain.user.exceptions import (
@@ -10,13 +12,13 @@ from domain.user.exceptions import (
 )
 from domain.user.user import User
 from domain.user.value_objects import Email, HashedPassword, PlainPassword, Username
-from tests.unit.conftest import FakeHasher, FakeTimeProvider
+from tests.unit.conftest import FakeHasher
 
 
 @pytest.fixture
-def user(time_provider: FakeTimeProvider) -> User:
+def user() -> User:
     return User.create(
-        time_provider=time_provider,
+        now=datetime.now(),
         username=Username("테스트유저"),
         email=Email("test@example.com"),
         hashed_password=HashedPassword("hashed_Correct_pw_123!"),
@@ -51,11 +53,9 @@ class TestUserEntity:
         with pytest.raises(expected_exception):
             user.authenticate(PlainPassword(invalid_password), hasher)
 
-    def test_change_password_success(
-        self, user, time_provider: FakeTimeProvider, hasher: FakeHasher
-    ):
+    def test_change_password_success(self, user: User, hasher: FakeHasher):
         new_user = user.change_password(
-            time_provider=time_provider,
+            now=datetime.now(),
             plain_password=PlainPassword("NewPw123!"),
             hasher=hasher,
         )
@@ -77,14 +77,13 @@ class TestUserEntity:
     def test_change_password_invalid(
         self,
         user,
-        time_provider: FakeTimeProvider,
         invalid_password,
         expected_exception,
     ):
         hasher = FakeHasher()
         with pytest.raises(expected_exception):
             user.change_password(
-                time_provider=time_provider,
+                now=datetime.now(),
                 plain_password=PlainPassword(invalid_password),
                 hasher=hasher,
             )

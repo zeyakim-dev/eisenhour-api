@@ -8,6 +8,7 @@ from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
     UsernameAlreadyExistsError,
 )
+from shared_kernel.time.time_provider import TimeProvider
 
 
 @pytest.fixture
@@ -22,10 +23,12 @@ def user_register_command_handler(fake_user_inmemory_repository, time_provider, 
 @pytest.mark.asyncio
 class TestUserRegisterCommand:
     async def test_successful_registration(
-        self, user_register_command_handler, time_provider
+        self,
+        user_register_command_handler: UserRegisterCommandHandler,
+        time_provider: TimeProvider,
     ):
         command = UserRegisterCommand.create(
-            time_provider=time_provider,
+            now=time_provider.now(),
             username="newuser",
             email="newuser@example.com",
             plain_password="Secret_123!",
@@ -39,7 +42,7 @@ class TestUserRegisterCommand:
         self, user_register_command_handler, time_provider, valid_user1
     ):
         command = UserRegisterCommand.create(
-            time_provider=time_provider,
+            now=time_provider.now(),
             username=valid_user1.username,
             email="unique@example.com",
             plain_password="Secret_123!",
@@ -52,7 +55,7 @@ class TestUserRegisterCommand:
         self, user_register_command_handler, time_provider, valid_user2
     ):
         command = UserRegisterCommand.create(
-            time_provider=time_provider,
+            now=time_provider.now(),
             username="uniqueuser",
             email=valid_user2.email,
             plain_password="Secret_123!",
