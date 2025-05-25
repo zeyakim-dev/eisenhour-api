@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from uuid import uuid4
 
 import pytest
@@ -6,7 +7,6 @@ import pytest
 from domain.auth.auth_info.auth_info import AuthInfo
 from domain.auth.auth_info.exceptions import InvalidAuthTypeError
 from domain.auth.auth_info.value_objects import AuthType, AuthTypeEnum
-from shared_kernel.time.time_provider import TimeProvider
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -26,13 +26,13 @@ class LocalAuthInfo(AuthInfo):
 
 
 @pytest.fixture
-def google_oauth_info(time_provider: TimeProvider) -> GoogleOAuthInfo:
-    return GoogleOAuthInfo.create(time_provider=time_provider, user_id=uuid4())
+def google_oauth_info() -> GoogleOAuthInfo:
+    return GoogleOAuthInfo.create(now=datetime.now(), user_id=uuid4())
 
 
 @pytest.fixture
-def local_auth_info(time_provider: TimeProvider) -> LocalAuthInfo:
-    return LocalAuthInfo.create(time_provider=time_provider, user_id=uuid4())
+def local_auth_info() -> LocalAuthInfo:
+    return LocalAuthInfo.create(now=datetime.now(), user_id=uuid4())
 
 
 @pytest.mark.unit
@@ -65,7 +65,7 @@ class TestAuthInfo:
         assert local_auth_info.is_local_auth()
         assert not local_auth_info.is_google_auth()
 
-    def test_invalid_auth_type(self, time_provider: TimeProvider) -> None:
+    def test_invalid_auth_type(self) -> None:
         """잘못된 auth_type 주입 시 InvalidAuthTypeError 예외가 발생하는지 검증한다.
 
         Given:
@@ -77,14 +77,14 @@ class TestAuthInfo:
         """
         with pytest.raises(InvalidAuthTypeError):
             GoogleOAuthInfo.create(
-                time_provider=time_provider,
+                now=datetime.now(),
                 user_id=uuid4(),
                 auth_type=AuthType(AuthTypeEnum.LOCAL),
             )
 
         with pytest.raises(InvalidAuthTypeError):
             LocalAuthInfo.create(
-                time_provider=time_provider,
+                now=datetime.now(),
                 user_id=uuid4(),
                 auth_type=AuthType(AuthTypeEnum.GOOGLE),
             )
