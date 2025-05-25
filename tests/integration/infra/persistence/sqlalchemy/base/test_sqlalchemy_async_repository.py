@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import timedelta, timezone
+from datetime import datetime
 from uuid import uuid4
 
 import pytest
@@ -14,7 +14,6 @@ from infra.persistence.sqlalchemy.base.model import SQLAlchemyModel
 from infra.persistence.sqlalchemy.base.sqlalchemy_async_reposiotry import (
     SQLAlchemyAsyncRepository,
 )
-from shared_kernel.time.time_provider import TimeProvider
 
 # --- 1) 엔진 & 세션팩토리 설정
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -76,14 +75,8 @@ class StubRepository(SQLAlchemyAsyncRepository[StubEntity, StubModel]):
 
 
 @pytest.fixture
-def time_provider() -> TimeProvider:
-    tz: timezone = timezone(timedelta(hours=9))
-    return TimeProvider(tz=tz)
-
-
-@pytest.fixture
-def test_entity(time_provider: TimeProvider):
-    return StubEntity.create(time_provider=time_provider, name="test")
+def test_entity():
+    return StubEntity.create(now=datetime.now(), name="test")
 
 
 @pytest.fixture
@@ -93,7 +86,7 @@ def test_model(test_entity: StubEntity) -> StubModel:
 
 @pytest_asyncio.fixture
 async def stub_repository(
-    db_session: AsyncSession, time_provider: TimeProvider, test_model: StubModel
+    db_session: AsyncSession, test_model: StubModel
 ) -> StubRepository:
     test_repository = StubRepository(db_session, StubMapper())
     db_session.add(test_model)
@@ -107,15 +100,14 @@ class TestSQLAlchemyAsyncRepository:
     async def test_commit_persists_data(
         self,
         db_session: AsyncSession,
-        time_provider: TimeProvider,
         stub_repository: StubRepository,
         test_entity: StubEntity,
     ):
         new_model = StubModel(
             id=uuid4(),
             name="new",
-            created_at=time_provider.now(),
-            updated_at=time_provider.now(),
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
         )
         db_session.add(new_model)
         await stub_repository.commit()
@@ -132,15 +124,14 @@ class TestSQLAlchemyAsyncRepository:
     async def test_rollback_rolls_back_data(
         self,
         db_session: AsyncSession,
-        time_provider: TimeProvider,
         stub_repository: StubRepository,
         test_entity: StubEntity,
     ):
         new_model = StubModel(
             id=uuid4(),
             name="new",
-            created_at=time_provider.now(),
-            updated_at=time_provider.now(),
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
         )
         db_session.add(new_model)
         await stub_repository.rollback()
@@ -152,10 +143,9 @@ class TestSQLAlchemyAsyncRepository:
     async def test_save(
         self,
         db_session: AsyncSession,
-        time_provider: TimeProvider,
         stub_repository: StubRepository,
     ):
-        entity = StubEntity.create(time_provider=time_provider, name="new")
+        entity = StubEntity.create(now=datetime.now(), name="new")
         await stub_repository._save(entity)
         await db_session.flush()
 
