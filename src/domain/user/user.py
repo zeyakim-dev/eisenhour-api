@@ -1,11 +1,11 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Self
 
 from domain.auth.auth_info.value_objects import HashedPassword
 from domain.base.aggregate import Aggregate
 from domain.user.value_objects import Email, PlainPassword, Username
 from shared_kernel.hasher.hasher import Hasher
-from shared_kernel.time.time_provider import TimeProvider
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -40,7 +40,7 @@ class User(Aggregate):
         return hasher.verify(plain_password.value, self.hashed_password.value)
 
     def change_password(
-        self, time_provider: TimeProvider, plain_password: PlainPassword, hasher: Hasher
+        self, now: datetime, plain_password: PlainPassword, hasher: Hasher
     ) -> Self:
         """비밀번호를 새 평문 비밀번호로 변경합니다.
 
@@ -48,7 +48,7 @@ class User(Aggregate):
         기존 인스턴스는 불변성을 유지하며 새로운 인스턴스를 반환합니다.
 
         Args:
-            time_provider (TimeProvider): 시간 정보를 제공하는 객체.
+            now (datetime): 비밀번호 변경 시간.
             plain_password (PlainPassword): 새 비밀번호(평문).
             hasher (Hasher): 비밀번호 해시에 사용되는 도구.
 
@@ -58,6 +58,4 @@ class User(Aggregate):
         new_hashed_password: HashedPassword = HashedPassword(
             hasher.hash(plain_password.value)
         )
-        return self.update(
-            time_provider=time_provider, hashed_password=new_hashed_password
-        )
+        return self.update(now=now, hashed_password=new_hashed_password)

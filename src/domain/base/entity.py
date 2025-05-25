@@ -4,7 +4,6 @@ from typing import Any, Self
 from uuid import UUID, uuid4
 
 from domain.base.exceptions import TimestampRequiredError
-from shared_kernel.time.time_provider import TimeProvider
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -52,33 +51,31 @@ class Entity:
             raise TimestampRequiredError()
 
     @classmethod
-    def create(cls, time_provider: TimeProvider, **kwargs: Any) -> Self:
+    def create(cls, now: datetime, **kwargs: Any) -> Self:
         """현재 시각을 기준으로 엔터티를 생성합니다.
 
         Args:
-            time_provider (TimeProvider): 현재 시각을 제공하는 시간 공급자입니다.
+            now (datetime): 생성 시각.
             **kwargs: 엔터티 생성에 필요한 기타 필드 값입니다.
 
         Returns:
             Self: 생성된 엔터티 인스턴스를 반환합니다.
         """
-        now = time_provider.now()
         kwargs.setdefault("created_at", now)
         kwargs.setdefault("updated_at", now)
         return cls(**kwargs)
 
-    def update(self, time_provider: TimeProvider, **kwargs: Any) -> Self:
+    def update(self, now: datetime, **kwargs: Any) -> Self:
         """엔터티를 불변성을 유지한 채 업데이트합니다.
 
         지정된 필드를 변경하되, 새로운 인스턴스를 생성하여 기존 객체는 그대로 유지합니다.
 
         Args:
-            time_provider (TimeProvider): 현재 시각을 반환하는 시간 공급자 객체입니다.
+            now (datetime): 업데이트 시각.
             **kwargs: 수정할 필드 값들.
 
         Returns:
             Self: 수정된 엔터티 인스턴스를 새로 생성하여 반환합니다.
         """
-        now = time_provider.now()
         kwargs.setdefault("updated_at", now)
         return replace(self, **kwargs)

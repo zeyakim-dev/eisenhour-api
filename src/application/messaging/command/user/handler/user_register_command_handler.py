@@ -45,8 +45,10 @@ class UserRegisterCommandHandler(
         await self.repository.check_username_exists(username.value)
         await self.repository.check_email_exists(email.value)
 
+        now = self.time_provider.now()
+
         user = User.create(
-            time_provider=self.time_provider,
+            now=now,
             username=username,
             email=email,
             hashed_password=hashed_password,

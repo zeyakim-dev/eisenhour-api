@@ -9,7 +9,6 @@ from domain.auth.auth_info.exceptions import (
 )
 from domain.auth.auth_info.value_objects import AuthType, AuthTypeEnum, HashedPassword
 from domain.user.user import User
-from shared_kernel.time.time_provider import TimeProvider
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -25,10 +24,10 @@ class LocalAuthInfo(AuthInfo):
     password_expired_at: datetime
 
     @classmethod
-    def create(cls, time_provider: TimeProvider, **kwargs: Any) -> Self:
-        password_expired_at = time_provider.now() + timedelta(days=90)
+    def create(cls, now: datetime, **kwargs: Any) -> Self:
+        password_expired_at = now + timedelta(days=90)
         kwargs.setdefault("password_expired_at", password_expired_at)
-        return super().create(time_provider, **kwargs)
+        return super().create(now, **kwargs)
 
     def validate_auth_type(self) -> bool:
         """인증 유형이 로컬인지 확인한다.
@@ -39,7 +38,7 @@ class LocalAuthInfo(AuthInfo):
         return self.auth_type.is_local()
 
     def change_password(
-        self, time_provider: TimeProvider, user: User, new_password: HashedPassword
+        self, now: datetime, user: User, new_password: HashedPassword
     ) -> Self:
         """비밀번호를 변경한다.
 
@@ -59,12 +58,12 @@ class LocalAuthInfo(AuthInfo):
         if user.auth_type != self.auth_type:  # type: ignore[attr-defined]
             raise PasswordChangeNotAllowedError(user.auth_type)  # type: ignore[attr-defined]
 
-        expired_at = time_provider.now() + timedelta(days=90)
+        expired_at = now + timedelta(days=90)
         return self.update(
-            time_provider, hashed_password=new_password, password_expired_at=expired_at
+            now, hashed_password=new_password, password_expired_at=expired_at
         )
 
-    def is_password_expired(self, time_provider: TimeProvider) -> bool:
+    def is_password_expired(self, now: datetime) -> bool:
         """비밀번호가 만료되었는지 확인한다.
 
         Args:
@@ -73,4 +72,4 @@ class LocalAuthInfo(AuthInfo):
         Returns:
             bool: 만료일이 현재 시간보다 이전이면 True, 아니면 False.
         """
-        return self.password_expired_at < time_provider.now()
+        return self.password_expired_at < now
