@@ -5,12 +5,13 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
+from domain.auth.auth_info.value_objects import HashedPassword
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
     UsernameAlreadyExistsError,
 )
 from domain.user.user import User
-from domain.user.value_objects import Email, HashedPassword, Username
+from domain.user.value_objects import Email, Username
 from infra.persistence.sqlalchemy.postgresql.user.user_model import UserModel
 from shared_kernel.time.time_provider import TimeProvider
 from src.infra.persistence.sqlalchemy.postgresql.user.user_mapper import UserMapper
