@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from typing import Any, Self
 
 from domain.auth.auth_info.auth_info import AuthInfo
 from domain.auth.auth_info.exceptions import (
@@ -23,6 +24,12 @@ class LocalAuthInfo(AuthInfo):
     hashed_password: HashedPassword
     password_expired_at: datetime
 
+    @classmethod
+    def create(cls, time_provider: TimeProvider, **kwargs: Any) -> Self:
+        password_expired_at = time_provider.now() + timedelta(days=90)
+        kwargs.setdefault("password_expired_at", password_expired_at)
+        return super().create(time_provider, **kwargs)
+
     def validate_auth_type(self) -> bool:
         """인증 유형이 로컬인지 확인한다.
 
@@ -33,7 +40,7 @@ class LocalAuthInfo(AuthInfo):
 
     def change_password(
         self, time_provider: TimeProvider, user: User, new_password: HashedPassword
-    ) -> None:
+    ) -> Self:
         """비밀번호를 변경한다.
 
         사용자 ID와 인증 유형을 검증한 후, 새로운 비밀번호와 만료일자를 설정한다.
@@ -53,7 +60,7 @@ class LocalAuthInfo(AuthInfo):
             raise PasswordChangeNotAllowedError(user.auth_type)  # type: ignore[attr-defined]
 
         expired_at = time_provider.now() + timedelta(days=90)
-        self.update(
+        return self.update(
             time_provider, hashed_password=new_password, password_expired_at=expired_at
         )
 
