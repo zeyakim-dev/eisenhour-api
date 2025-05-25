@@ -1,4 +1,4 @@
-from datetime import timedelta, timezone
+from datetime import datetime
 
 import pytest
 import pytest_asyncio
@@ -13,7 +13,6 @@ from domain.user.repository.exceptions import (
 from domain.user.user import User
 from domain.user.value_objects import Email, Username
 from infra.persistence.sqlalchemy.postgresql.user.user_model import UserModel
-from shared_kernel.time.time_provider import TimeProvider
 from src.infra.persistence.sqlalchemy.postgresql.user.user_mapper import UserMapper
 from src.infra.persistence.sqlalchemy.postgresql.user.user_repository import (
     SQLAlchemyPGAsyncUserRepository,
@@ -42,20 +41,14 @@ async def db_session(prepare_db):
 
 
 @pytest.fixture
-def time_provider():
-    tz_kst = timezone(timedelta(hours=9))
-    return TimeProvider(tz_kst)
-
-
-@pytest.fixture
 def user_mapper():
     return UserMapper()
 
 
 @pytest.fixture
-def test_user(time_provider: TimeProvider):
+def test_user():
     return User.create(
-        time_provider=time_provider,
+        now=datetime.now(),
         username=Username("test_user"),
         email=Email("test@test.com"),
         hashed_password=HashedPassword("Test_pw_123!"),
