@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import Self
 
+from domain.auth.auth_info.value_objects import HashedPassword
 from domain.base.aggregate import Aggregate
-from domain.user.value_objects import Email, HashedPassword, PlainPassword, Username
+from domain.user.value_objects import Email, PlainPassword, Username
 from shared_kernel.hasher.hasher import Hasher
 from shared_kernel.time.time_provider import TimeProvider
 

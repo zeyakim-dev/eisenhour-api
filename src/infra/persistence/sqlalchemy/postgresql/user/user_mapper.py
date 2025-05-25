@@ -1,5 +1,6 @@
+from domain.auth.auth_info.value_objects import HashedPassword
 from domain.user.user import User
-from domain.user.value_objects import Email, HashedPassword, Username
+from domain.user.value_objects import Email, Username
 from infra.persistence.base.mapper import Mapper
 from infra.persistence.sqlalchemy.postgresql.user.user_model import UserModel
 

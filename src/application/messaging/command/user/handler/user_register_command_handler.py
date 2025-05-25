@@ -3,9 +3,10 @@ from application.messaging.command.user.user_register_command import (
     UserRegisterCommand,
     UserRegisterCommandResult,
 )
+from domain.auth.auth_info.value_objects import HashedPassword
 from domain.user.repository.user_repository import UserRepository
 from domain.user.user import User
-from domain.user.value_objects import Email, HashedPassword, PlainPassword, Username
+from domain.user.value_objects import Email, PlainPassword, Username
 from shared_kernel.hasher.hasher import Hasher
 from shared_kernel.time.time_provider import TimeProvider
 
