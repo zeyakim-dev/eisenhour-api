@@ -3,7 +3,7 @@ from uuid import UUID
 
 from application.ports.repository.exceptions import EntityNotFoundError
 from application.ports.repository.repository import AsyncRepository
-from domain.auth.auth_info.local_auth_info import LocalAuthInfo
+from domain.auth.auth_info.local.local_auth_info import LocalAuthInfo
 
 
 class LocalAuthInfoRepository(AsyncRepository[LocalAuthInfo]):
