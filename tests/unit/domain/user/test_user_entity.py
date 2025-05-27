@@ -2,8 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from domain.auth.auth_info.value_objects import HashedPassword
-from domain.user.exceptions import (
+from domain.auth.auth_info.local.exceptions import (
     PasswordMissingLowercaseError,
     PasswordMissingNumberError,
     PasswordMissingSpecialCharacterError,
@@ -11,8 +10,10 @@ from domain.user.exceptions import (
     PasswordTooLongError,
     PasswordTooShortError,
 )
+from domain.auth.auth_info.local.value_objects import PlainPassword
+from domain.auth.auth_info.value_objects import HashedPassword
 from domain.user.user import User
-from domain.user.value_objects import Email, PlainPassword, Username
+from domain.user.value_objects import Email, Username
 from tests.unit.conftest import FakeHasher
 
 

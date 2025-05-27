@@ -1,17 +1,20 @@
 import pytest
 
-from domain.user.exceptions import (
-    EmptyUsernameError,
-    InvalidEmailFormatError,
+from domain.auth.auth_info.local.exceptions import (
     PasswordMissingLowercaseError,
     PasswordMissingNumberError,
     PasswordMissingSpecialCharacterError,
     PasswordMissingUppercaseError,
     PasswordTooLongError,
     PasswordTooShortError,
+)
+from domain.auth.auth_info.local.value_objects import PlainPassword
+from domain.user.exceptions import (
+    EmptyUsernameError,
+    InvalidEmailFormatError,
     UsernameTooLongError,
 )
-from domain.user.value_objects import Email, PlainPassword, Username
+from domain.user.value_objects import Email, Username
 
 
 class TestUsernameVO:
