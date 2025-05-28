@@ -4,13 +4,14 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from domain.auth.auth_info.exceptions import (
-    InvalidAuthTypeError,
+from domain.auth.auth_info.base.exceptions import InvalidAuthTypeError
+from domain.auth.auth_info.base.value_objects import AuthType, AuthTypeEnum
+from domain.auth.auth_info.local.exceptions import (
     PasswordChangeNotAllowedError,
     UserIdMismatchError,
 )
-from domain.auth.auth_info.local_auth_info import LocalAuthInfo
-from domain.auth.auth_info.value_objects import AuthType, AuthTypeEnum, HashedPassword
+from domain.auth.auth_info.local.local_auth_info import LocalAuthInfo
+from domain.auth.auth_info.local.value_objects import HashedPassword
 from shared_kernel.time.time_provider import TimeProvider
 
 

@@ -1,6 +1,6 @@
 import pytest
 
-from domain.auth.auth_info.value_objects import AuthType, AuthTypeEnum
+from domain.auth.auth_info.base.value_objects import AuthType, AuthTypeEnum
 
 
 @pytest.fixture

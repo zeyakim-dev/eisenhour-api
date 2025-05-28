@@ -3,8 +3,6 @@ from application.messaging.command.user.user_register_command import (
     UserRegisterCommand,
     UserRegisterCommandResult,
 )
-from domain.auth.auth_info.local.value_objects import PlainPassword
-from domain.auth.auth_info.value_objects import HashedPassword
 from domain.user.repository.user_repository import UserRepository
 from domain.user.user import User
 from domain.user.value_objects import Email, Username
@@ -38,10 +36,10 @@ class UserRegisterCommandHandler(
     async def execute(self, command: UserRegisterCommand) -> UserRegisterCommandResult:
         username = Username(command.username)
         email = Email(command.email)
-        plain_password = PlainPassword(command.plain_password)
+        # plain_password = PlainPassword(command.plain_password)
 
-        hashed_password_value = self.hasher.hash(plain_password.value)
-        hashed_password = HashedPassword(hashed_password_value)
+        # hashed_password_value = self.hasher.hash(plain_password.value)
+        # hashed_password = HashedPassword(hashed_password_value)
 
         await self.repository.check_username_exists(username.value)
         await self.repository.check_email_exists(email.value)
@@ -52,7 +50,6 @@ class UserRegisterCommandHandler(
             now=now,
             username=username,
             email=email,
-            hashed_password=hashed_password,
         )
 
         await self.repository.save(user)

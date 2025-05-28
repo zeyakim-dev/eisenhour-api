@@ -4,9 +4,9 @@ from uuid import uuid4
 
 import pytest
 
-from domain.auth.auth_info.auth_info import AuthInfo
-from domain.auth.auth_info.exceptions import InvalidAuthTypeError
-from domain.auth.auth_info.value_objects import AuthType, AuthTypeEnum
+from domain.auth.auth_info.base.auth_info import AuthInfo
+from domain.auth.auth_info.base.exceptions import InvalidAuthTypeError
+from domain.auth.auth_info.base.value_objects import AuthType, AuthTypeEnum
 
 
 @dataclass(frozen=True, kw_only=True)
