@@ -36,3 +36,4 @@ class UserRegisterCommandResult(CommandResult):
     id: str
     username: str
     email: str
+    auth_type: str

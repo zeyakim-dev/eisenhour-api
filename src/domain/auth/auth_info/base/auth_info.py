@@ -2,8 +2,8 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from uuid import UUID
 
-from domain.auth.auth_info.exceptions import InvalidAuthTypeError
-from domain.auth.auth_info.value_objects import AuthType
+from domain.auth.auth_info.base.exceptions import InvalidAuthTypeError
+from domain.auth.auth_info.base.value_objects import AuthType
 from domain.base.aggregate import Aggregate
 
 

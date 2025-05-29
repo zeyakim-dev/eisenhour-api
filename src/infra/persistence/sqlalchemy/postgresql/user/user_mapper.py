@@ -1,4 +1,3 @@
-from domain.auth.auth_info.value_objects import HashedPassword
 from domain.user.user import User
 from domain.user.value_objects import Email, Username
 from infra.persistence.base.mapper import Mapper
@@ -15,7 +14,6 @@ class UserMapper(Mapper[User, UserModel]):
             updated_at=model.updated_at,
             username=Username(model.username),
             email=Email(model.email),
-            hashed_password=HashedPassword(model.hashed_password),
         )
 
     def to_model(self, entity: User) -> UserModel:
@@ -25,5 +23,4 @@ class UserMapper(Mapper[User, UserModel]):
             updated_at=entity.updated_at,
             username=entity.username.value,
             email=entity.email.value,
-            hashed_password=entity.hashed_password.value,
         )

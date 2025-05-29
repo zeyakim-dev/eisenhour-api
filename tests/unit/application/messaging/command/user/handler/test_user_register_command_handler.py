@@ -4,6 +4,7 @@ from application.messaging.command.user.handler.user_register_command_handler im
     UserRegisterCommandHandler,
 )
 from application.messaging.command.user.user_register_command import UserRegisterCommand
+from domain.auth.auth_info.base.value_objects import AuthTypeEnum
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
     UsernameAlreadyExistsError,
@@ -12,9 +13,19 @@ from shared_kernel.time.time_provider import TimeProvider
 
 
 @pytest.fixture
-def user_register_command_handler(fake_user_inmemory_repository, time_provider, hasher):
+def repositories(
+    fake_user_inmemory_repository, fake_local_auth_info_inmemory_repository
+):
+    return {
+        "user": fake_user_inmemory_repository,
+        "local_auth_info": fake_local_auth_info_inmemory_repository,
+    }
+
+
+@pytest.fixture
+def user_register_command_handler(repositories, time_provider, hasher):
     return UserRegisterCommandHandler(
-        repository=fake_user_inmemory_repository,
+        repositories=repositories,
         time_provider=time_provider,
         hasher=hasher,
     )
@@ -37,6 +48,7 @@ class TestUserRegisterCommand:
         result = await user_register_command_handler.execute(command)
         assert result.username == "newuser"
         assert result.email == "newuser@example.com"
+        assert result.auth_type == AuthTypeEnum.LOCAL.value
 
     async def test_duplicate_username_raises_error(
         self, user_register_command_handler, time_provider, valid_user1

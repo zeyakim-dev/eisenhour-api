@@ -2,12 +2,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Self
 
-from domain.auth.auth_info.auth_info import AuthInfo
-from domain.auth.auth_info.exceptions import (
+from domain.auth.auth_info.base.auth_info import AuthInfo
+from domain.auth.auth_info.base.value_objects import AuthType, AuthTypeEnum
+from domain.auth.auth_info.local.exceptions import (
     PasswordChangeNotAllowedError,
     UserIdMismatchError,
 )
-from domain.auth.auth_info.value_objects import AuthType, AuthTypeEnum, HashedPassword
+from domain.auth.auth_info.local.value_objects import HashedPassword
 from domain.user.user import User
 
 
