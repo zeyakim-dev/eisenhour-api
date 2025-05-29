@@ -5,12 +5,10 @@ from application.messaging.command.user.handler.user_register_command_handler im
 )
 from application.messaging.command.user.user_register_command import UserRegisterCommand
 from domain.auth.auth_info.base.value_objects import AuthTypeEnum
-from domain.auth.auth_info.local.local_auth_info import LocalAuthInfo
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
     UsernameAlreadyExistsError,
 )
-from domain.user.user import User
 from shared_kernel.time.time_provider import TimeProvider
 
 
@@ -19,8 +17,8 @@ def repositories(
     fake_user_inmemory_repository, fake_local_auth_info_inmemory_repository
 ):
     return {
-        User: fake_user_inmemory_repository,
-        LocalAuthInfo: fake_local_auth_info_inmemory_repository,
+        "user": fake_user_inmemory_repository,
+        "local_auth_info": fake_local_auth_info_inmemory_repository,
     }
 
 
