@@ -9,38 +9,6 @@ from domain.auth.auth_info.local.exceptions import (
     PasswordTooShortError,
 )
 from domain.auth.auth_info.local.value_objects import PlainPassword
-from domain.user.exceptions import (
-    EmptyUsernameError,
-    InvalidEmailFormatError,
-    UsernameTooLongError,
-)
-from domain.user.value_objects import Email, Username
-
-
-class TestUsernameVO:
-    def test_valid_username(self):
-        assert Username("홍길동").value == "홍길동"
-
-    def test_empty_username(self):
-        with pytest.raises(EmptyUsernameError):
-            Username("")
-
-    def test_whitespace_username(self):
-        with pytest.raises(EmptyUsernameError):
-            Username("   ")
-
-    def test_username_too_long(self):
-        with pytest.raises(UsernameTooLongError):
-            Username("a" * 51)
-
-
-class TestEmailVO:
-    def test_valid_email(self):
-        assert Email("user@example.com").value == "user@example.com"
-
-    def test_invalid_email(self):
-        with pytest.raises(InvalidEmailFormatError):
-            Email("invalid-email")
 
 
 class TestPlainPasswordVO:

@@ -5,7 +5,6 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
-from domain.auth.auth_info.value_objects import HashedPassword
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
     UsernameAlreadyExistsError,
@@ -51,7 +50,6 @@ def test_user():
         now=datetime.now(),
         username=Username("test_user"),
         email=Email("test@test.com"),
-        hashed_password=HashedPassword("Test_pw_123!"),
     )
 
 
