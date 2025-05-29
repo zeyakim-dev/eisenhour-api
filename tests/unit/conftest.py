@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
 
 from application.ports.repository.exceptions import EntityNotFoundError
+from domain.auth.auth_info.base.value_objects import AuthTypeEnum
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
     UsernameAlreadyExistsError,
@@ -96,3 +97,54 @@ def fake_user_inmemory_repository(
 ):
     items = {valid_user1.id: valid_user1, valid_user2.id: valid_user2}
     return FakeInMemoryAsyncUserRepository(items=items)
+
+
+@dataclass(frozen=True, kw_only=True)
+class FakeLocalAuthInfoEntity:
+    id: UUID = field(default_factory=uuid4)
+    user_id: UUID
+    auth_type: str
+    hashed_password: str
+    password_expired_at: datetime
+
+
+class FakeInMemoryAsyncLocalAuthInfoRepository:
+    """비동기 메모리 기반 LocalAuthInfoRepository Fake 구현체."""
+
+    def __init__(self, items: dict[UUID, FakeUserEntity] | None = None):
+        self.items = items or {}
+
+    async def save(self, entity: FakeLocalAuthInfoEntity) -> None:
+        self.items[entity.id] = entity
+
+
+@pytest.fixture
+def valid_local_auth_info1(valid_user1: FakeUserEntity):
+    return FakeLocalAuthInfoEntity(
+        user_id=valid_user1.id,
+        auth_type=AuthTypeEnum.LOCAL.value,
+        hashed_password="hashed_Test_pw_1!",
+        password_expired_at=datetime.now() + timedelta(days=30),
+    )
+
+
+@pytest.fixture
+def valid_local_auth_info2(valid_user2: FakeUserEntity):
+    return FakeLocalAuthInfoEntity(
+        user_id=valid_user2.id,
+        auth_type=AuthTypeEnum.LOCAL.value,
+        hashed_password="hashed_Test_pw_2!",
+        password_expired_at=datetime.now() + timedelta(days=30),
+    )
+
+
+@pytest.fixture
+def fake_local_auth_info_inmemory_repository(
+    valid_local_auth_info1: FakeLocalAuthInfoEntity,
+    valid_local_auth_info2: FakeLocalAuthInfoEntity,
+):
+    items = {
+        valid_local_auth_info1.id: valid_local_auth_info1,
+        valid_local_auth_info2.id: valid_local_auth_info2,
+    }
+    return FakeInMemoryAsyncLocalAuthInfoRepository(items=items)
