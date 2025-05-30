@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -10,7 +8,6 @@ from domain.user.repository.exceptions import (
     UsernameAlreadyExistsError,
 )
 from domain.user.user import User
-from domain.user.value_objects import Email, Username
 from infra.persistence.sqlalchemy.postgresql.user.user_model import UserModel
 from src.infra.persistence.sqlalchemy.postgresql.user.user_mapper import UserMapper
 from src.infra.persistence.sqlalchemy.postgresql.user.user_repository import (
@@ -37,25 +34,6 @@ async def db_session(prepare_db):
         await session.begin_nested()  # SAVEPOINT
         yield session
         await session.rollback()  # 테스트 후 롤백
-
-
-@pytest.fixture
-def user_mapper():
-    return UserMapper()
-
-
-@pytest.fixture
-def test_user():
-    return User.create(
-        now=datetime.now(),
-        username=Username("test_user"),
-        email=Email("test@test.com"),
-    )
-
-
-@pytest.fixture
-def test_user_model(test_user: User, user_mapper: UserMapper):
-    return user_mapper.to_model(test_user)
 
 
 @pytest_asyncio.fixture
