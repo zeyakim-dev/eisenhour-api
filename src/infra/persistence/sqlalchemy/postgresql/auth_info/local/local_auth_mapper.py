@@ -1,7 +1,7 @@
-from domain.auth.auth_info.local_auth_info import LocalAuthInfo
-from domain.auth.auth_info.value_objects import HashedPassword
+from domain.auth.auth_info.local.local_auth_info import LocalAuthInfo
+from domain.auth.auth_info.local.value_objects import HashedPassword
 from infra.persistence.base.mapper import Mapper
-from infra.persistence.sqlalchemy.postgresql.auth_info.local_auth_info.local_auth_info_model import (
+from infra.persistence.sqlalchemy.postgresql.auth_info.local.local_auth_info_model import (
     LocalAuthInfoModel,
 )
 

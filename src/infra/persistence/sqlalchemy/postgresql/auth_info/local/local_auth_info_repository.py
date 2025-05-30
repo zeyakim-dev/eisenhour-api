@@ -2,11 +2,11 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from domain.auth.auth_info.local_auth_info import LocalAuthInfo
+from domain.auth.auth_info.local.local_auth_info import LocalAuthInfo
 from domain.auth.auth_info.repository.local_auth_info_repository import (
     LocalAuthInfoRepository,
 )
-from infra.persistence.sqlalchemy.postgresql.auth_info.local_auth_info.local_auth_info_model import (
+from infra.persistence.sqlalchemy.postgresql.auth_info.local.local_auth_info_model import (
     LocalAuthInfoModel,
 )
 from infra.persistence.sqlalchemy.postgresql.base.pg_repository import (
@@ -14,7 +14,7 @@ from infra.persistence.sqlalchemy.postgresql.base.pg_repository import (
 )
 
 
-class LocalAuthInfoPGAsyncRepository(
+class SQLAlchemyPGAsyncLocalAuthInfoRepository(
     SQLAlchemyPGAsyncRepository[LocalAuthInfo, LocalAuthInfoModel],
     LocalAuthInfoRepository,
 ):
