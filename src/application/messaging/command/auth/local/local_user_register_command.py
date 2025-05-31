@@ -5,7 +5,7 @@ from application.messaging.command.base.command_handler import CommandResult
 
 
 @dataclass(frozen=True, kw_only=True)
-class UserRegisterCommand(Command):
+class LocalUserRegisterCommand(Command):
     """사용자 등록을 위한 커맨드입니다.
 
     사용자명, 이메일, 평문 비밀번호를 포함하여 등록 요청을 전달합니다.
@@ -22,7 +22,7 @@ class UserRegisterCommand(Command):
 
 
 @dataclass(frozen=True, kw_only=True)
-class UserRegisterCommandResult(CommandResult):
+class LocalUserRegisterCommandResult(CommandResult):
     """사용자 등록 결과를 나타내는 커맨드 결과 객체입니다.
 
     등록된 사용자의 주요 정보를 포함합니다.
