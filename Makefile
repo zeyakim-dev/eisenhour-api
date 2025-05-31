@@ -2,7 +2,7 @@
 
 # === 변수 정의 ===
 TEST_SCOPE         ?= unit
-TEST_TARGETS       ?= tests/unit
+TEST_TARGETS       ?= tests/$(TEST_SCOPE)
 ENABLE_COVERAGE    ?= false
 
 ifeq ($(ENABLE_COVERAGE), true)

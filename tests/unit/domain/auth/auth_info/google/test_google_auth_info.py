@@ -48,3 +48,17 @@ class TestGoogleAuthInfo:
         Then: GOOGLE 타입이면 True를 반환해야 한다.
         """
         assert google_auth_info.validate_auth_type() is True
+
+    def test_update_avatar_url_success(self, google_auth_info):
+        """
+        update_avatar_url()이 정상적으로 avatar_url을 변경하는지 검증합니다.
+
+        Given: 기존 GoogleAuthInfo 인스턴스가 있을 때
+        When: update_avatar_url()로 새로운 URL을 지정하면
+        Then: avatar_url이 변경된 새 인스턴스가 반환되어야 한다.
+        """
+        new_url = "https://example.com/new_avatar.png"
+        now = datetime.now()
+        updated = google_auth_info.update_avatar_url(now, new_url)
+        assert updated.avatar_url == new_url
+        assert updated is not google_auth_info

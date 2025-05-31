@@ -1,4 +1,6 @@
 from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Self
 
 from domain.auth.auth_info.base.auth_info import AuthInfo
 from domain.auth.auth_info.base.value_objects import AuthType, AuthTypeEnum
@@ -27,3 +29,15 @@ class GoogleAuthInfo(AuthInfo):
             bool: GOOGLE 타입이면 True, 아니면 False
         """
         return self.auth_type.is_google()
+
+    def update_avatar_url(self, now: datetime, avatar_url: str) -> Self:
+        """
+        프로필 이미지 URL을 업데이트합니다.
+
+        Args:
+            avatar_url (str): 새로운 프로필 이미지 URL
+
+        Returns:
+            Self: 업데이트된 GoogleAuthInfo 인스턴스
+        """
+        return self.update(now, avatar_url=avatar_url)
