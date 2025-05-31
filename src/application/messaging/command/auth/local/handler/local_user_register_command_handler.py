@@ -1,5 +1,8 @@
 from typing import TypedDict
 
+from application.messaging.command.auth.local.handler.exceptions import (
+    UsernameAlreadyExistsError,
+)
 from application.messaging.command.auth.local.local_user_register_command import (
     LocalUserRegisterCommand,
     LocalUserRegisterCommandResult,
@@ -60,9 +63,10 @@ class LocalUserRegisterCommandHandler(
         hashed_password = HashedPassword(hashed_password_value)
 
         user_repository: UserRepository | None = self.repositories["user"]
-        if not user_repository:
-            raise ValueError()
-        await user_repository.check_username_exists(username.value)
+        if user_repository is None:
+            raise ValueError
+        if await user_repository.get_by_username(username.value) is not None:
+            raise UsernameAlreadyExistsError(username.value)
         await user_repository.check_email_exists(email.value)
 
         now = self.time_provider.now()

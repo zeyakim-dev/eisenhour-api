@@ -4,11 +4,13 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from application.messaging.command.auth.local.handler.exceptions import (
+    UsernameAlreadyExistsError,
+)
 from application.ports.repository.exceptions import EntityNotFoundError
 from domain.auth.auth_info.base.value_objects import AuthTypeEnum
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
-    UsernameAlreadyExistsError,
 )
 
 

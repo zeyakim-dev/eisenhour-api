@@ -3,7 +3,6 @@ from abc import abstractmethod
 from application.ports.repository.repository import AsyncRepository
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
-    UsernameAlreadyExistsError,
 )
 from domain.user.user import User
 
@@ -15,17 +14,22 @@ class UserRepository(AsyncRepository[User]):
     에서 제공하는 메서드를 사용합니다.
     """
 
-    async def check_username_exists(self, username: str) -> None:
-        """사용자명 중복 여부를 비동기 방식으로 검사합니다.
+    async def get_by_username(self, username: str) -> User | None:
+        """사용자명으로 사용자를 조회합니다.
 
         Args:
-            username (str): 중복 검사할 사용자 이름.
-
-        Raises:
-            UsernameAlreadyExistsError: 중복된 사용자 이름이 존재하는 경우 발생합니다.
+            username (str): 조회할 사용자명.
         """
-        if await self._is_duplicate_username(username):
-            raise UsernameAlreadyExistsError(username)
+        return await self._get_by_username(username)
+
+    @abstractmethod
+    async def _get_by_username(self, username: str) -> User | None:
+        """사용자명으로 사용자를 조회합니다.
+
+        Args:
+            username (str): 조회할 사용자명.
+        """
+        ...
 
     async def check_email_exists(self, email: str) -> None:
         """이메일 중복 여부를 비동기 방식으로 검사합니다.
@@ -38,18 +42,6 @@ class UserRepository(AsyncRepository[User]):
         """
         if await self._is_duplicate_email(email):
             raise EmailAlreadyExistsError(email)
-
-    @abstractmethod
-    async def _is_duplicate_username(self, username: str) -> bool:
-        """저장소에 사용자명 중복 여부를 비동기 방식으로 확인합니다.
-
-        Args:
-            username (str): 검사할 사용자 이름.
-
-        Returns:
-            bool: 중복이면 True, 아니면 False.
-        """
-        ...
 
     @abstractmethod
     async def _is_duplicate_email(self, email: str) -> bool:
