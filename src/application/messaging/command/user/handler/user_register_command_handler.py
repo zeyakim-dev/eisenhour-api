@@ -7,10 +7,10 @@ from application.messaging.command.user.user_register_command import (
 )
 from domain.auth.auth_info.base.value_objects import AuthType, AuthTypeEnum
 from domain.auth.auth_info.local.local_auth_info import LocalAuthInfo
-from domain.auth.auth_info.local.value_objects import HashedPassword, PlainPassword
-from domain.auth.auth_info.repository.local_auth_info_repository import (
+from domain.auth.auth_info.local.repository.local_auth_info_repository import (
     LocalAuthInfoRepository,
 )
+from domain.auth.auth_info.local.value_objects import HashedPassword, PlainPassword
 from domain.user.repository.user_repository import UserRepository
 from domain.user.user import User
 from domain.user.value_objects import Email, Username

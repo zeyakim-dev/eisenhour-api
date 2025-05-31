@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from application.ports.repository.exceptions import EntityNotFoundError
-from domain.auth.auth_info.repository.local_auth_info_repository import (
+from domain.auth.auth_info.local.repository.local_auth_info_repository import (
     LocalAuthInfoRepository,
 )
 
