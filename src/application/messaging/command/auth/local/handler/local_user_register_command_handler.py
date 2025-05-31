@@ -1,10 +1,10 @@
 from typing import TypedDict
 
-from application.messaging.command.base.command_handler import CommandHandler
-from application.messaging.command.user.user_register_command import (
-    UserRegisterCommand,
-    UserRegisterCommandResult,
+from application.messaging.command.auth.local.local_user_register_command import (
+    LocalUserRegisterCommand,
+    LocalUserRegisterCommandResult,
 )
+from application.messaging.command.base.command_handler import CommandHandler
 from domain.auth.auth_info.base.value_objects import AuthType, AuthTypeEnum
 from domain.auth.auth_info.local.local_auth_info import LocalAuthInfo
 from domain.auth.auth_info.local.repository.local_auth_info_repository import (
@@ -18,13 +18,13 @@ from shared_kernel.hasher.hasher import Hasher
 from shared_kernel.time.time_provider import TimeProvider
 
 
-class UserRegisterRepositories(TypedDict):
+class LocalUserRegisterRepositories(TypedDict):
     user: UserRepository
     local_auth_info: LocalAuthInfoRepository
 
 
-class UserRegisterCommandHandler(
-    CommandHandler[UserRegisterCommand, UserRegisterCommandResult]
+class LocalUserRegisterCommandHandler(
+    CommandHandler[LocalUserRegisterCommand, LocalUserRegisterCommandResult]
 ):
     """사용자 등록 요청을 처리하는 커맨드 핸들러.
 
@@ -34,7 +34,7 @@ class UserRegisterCommandHandler(
 
     def __init__(
         self,
-        repositories: UserRegisterRepositories,
+        repositories: LocalUserRegisterRepositories,
         time_provider: TimeProvider,
         hasher: Hasher,
     ) -> None:
@@ -49,7 +49,9 @@ class UserRegisterCommandHandler(
         self.time_provider = time_provider
         self.hasher = hasher
 
-    async def execute(self, command: UserRegisterCommand) -> UserRegisterCommandResult:
+    async def execute(
+        self, command: LocalUserRegisterCommand
+    ) -> LocalUserRegisterCommandResult:
         username = Username(command.username)
         email = Email(command.email)
         plain_password = PlainPassword(command.plain_password)
@@ -86,7 +88,7 @@ class UserRegisterCommandHandler(
         )
         await local_auth_info_repository.save(local_auth_info)
 
-        return UserRegisterCommandResult(
+        return LocalUserRegisterCommandResult(
             id=str(user.id),
             username=user.username.value,
             email=user.email.value,
