@@ -1,5 +1,8 @@
 import pytest
 
+from application.messaging.command.auth.local.handler.exceptions import (
+    UsernameAlreadyExistsError,
+)
 from application.messaging.command.auth.local.handler.local_user_register_command_handler import (
     LocalUserRegisterCommandHandler,
 )
@@ -9,7 +12,6 @@ from application.messaging.command.auth.local.local_user_register_command import
 from domain.auth.auth_info.base.value_objects import AuthTypeEnum
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
-    UsernameAlreadyExistsError,
 )
 from shared_kernel.time.time_provider import TimeProvider
 
@@ -57,7 +59,7 @@ class TestUserRegisterCommand:
     ):
         command = LocalUserRegisterCommand.create(
             now=time_provider.now(),
-            username=valid_user1.username,
+            username=valid_user1.username.value,
             email="unique@example.com",
             plain_password="Secret_123!",
         )
@@ -71,7 +73,7 @@ class TestUserRegisterCommand:
         command = LocalUserRegisterCommand.create(
             now=time_provider.now(),
             username="uniqueuser",
-            email=valid_user2.email,
+            email=valid_user2.email.value,
             plain_password="Secret_123!",
         )
 

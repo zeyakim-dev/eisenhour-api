@@ -6,6 +6,7 @@ import pytest_asyncio
 from application.ports.repository.exceptions import EntityNotFoundError
 from application.ports.repository.repository import AsyncRepository
 from domain.base.entity import Entity
+from domain.user.value_objects import Email, Username
 from tests.unit.conftest import FakeUserEntity
 
 
@@ -57,7 +58,8 @@ class TestAsyncRepository:
         Then: repository.items에 엔티티가 추가되고 동일 객체가 반환된다
         """
         new_user = FakeUserEntity(
-            username="test2", email="test2@test.com", password="test2"
+            username=Username("test2"),
+            email=Email("test2@test.com"),
         )
         await repository.save(new_user)
         assert new_user.id in repository.items
@@ -72,16 +74,17 @@ class TestAsyncRepository:
         When: save()를 호출하면
         Then: repository.items의 엔티티가 새 인스턴스로 업데이트된다
         """
-        new_password = "new_password"
         changed_entity = FakeUserEntity(
             id=valid_user1.id,
-            username=valid_user1.username,
-            email=valid_user1.email,
-            password=new_password,
+            username=valid_user1.username.value,
+            email=valid_user1.email.value,
         )
         await repository.save(changed_entity)
         assert changed_entity.id in repository.items
-        assert repository.items[changed_entity.id].password == new_password
+        assert (
+            repository.items[changed_entity.id].username == valid_user1.username.value
+        )
+        assert repository.items[changed_entity.id].email == valid_user1.email.value
 
     async def test_get_success(
         self, repository: FakeInMemoryAsyncRepository, valid_user1: FakeUserEntity

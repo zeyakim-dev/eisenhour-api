@@ -5,7 +5,6 @@ from sqlalchemy.pool import NullPool
 
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
-    UsernameAlreadyExistsError,
 )
 from domain.user.user import User
 from infra.persistence.sqlalchemy.postgresql.user.user_model import UserModel
@@ -53,20 +52,22 @@ async def user_repository(
 @pytest.mark.integration
 @pytest.mark.asyncio
 class TestSqlalchemyPgAsyncUserRepository:
-    async def test_check_username_exists_raise_exception_when_username_exists(
+    async def test_get_by_username_returns_user_when_exists(
         self,
         user_repository: SQLAlchemyPGAsyncUserRepository,
         test_user: User,
     ):
-        with pytest.raises(UsernameAlreadyExistsError):
-            await user_repository.check_username_exists(test_user.username.value)
+        user = await user_repository.get_by_username(test_user.username.value)
+        assert user is not None
+        assert user.username == test_user.username
 
-    async def test_check_username_exists_returns_none_when_username_not_exists(
+    async def test_get_by_username_returns_none_when_not_exists(
         self,
         user_repository: SQLAlchemyPGAsyncUserRepository,
     ):
         new_username = "new_username"
-        assert await user_repository.check_username_exists(new_username) is None
+        user = await user_repository.get_by_username(new_username)
+        assert user is None
 
     async def test_check_email_exists_raise_exception_when_email_exists(
         self,

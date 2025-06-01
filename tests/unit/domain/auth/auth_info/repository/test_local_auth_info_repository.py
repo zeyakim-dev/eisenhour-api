@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from application.ports.repository.exceptions import EntityNotFoundError
+from domain.auth.auth_info.local.repository.exceptions import LocalAuthInfoNotFoundError
 from domain.auth.auth_info.local.repository.local_auth_info_repository import (
     LocalAuthInfoRepository,
 )
@@ -76,15 +76,15 @@ class TestLocalAuthInfoRepository:
         self,
         local_auth_info_repository: InMemoryLocalAuthInfoRepository,
     ):
-        """get_user_auth_info가 존재하지 않는 사용자 ID에서 EntityNotFoundError를 발생시키는지 검증한다.
+        """get_user_auth_info가 존재하지 않는 사용자 ID에서 LocalAuthInfoNotFoundError를 발생시키는지 검증한다.
 
         Given:
             LocalAuthInfo가 비어 있거나 해당 user_id가 없는 InMemoryLocalAuthInfoRepository.
         When:
             get_user_auth_info를 존재하지 않는 user_id로 호출하면.
         Then:
-            EntityNotFoundError 예외를 발생시켜야 한다.
+            LocalAuthInfoNotFoundError 예외를 발생시켜야 한다.
         """
         nonexisting_user_id = uuid4()
-        with pytest.raises(EntityNotFoundError):
+        with pytest.raises(LocalAuthInfoNotFoundError):
             await local_auth_info_repository.get_user_auth_info(nonexisting_user_id)
