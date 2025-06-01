@@ -6,9 +6,11 @@ import pytest
 
 from application.ports.repository.exceptions import EntityNotFoundError
 from domain.auth.auth_info.base.value_objects import AuthTypeEnum
+from domain.auth.auth_info.local.value_objects import HashedPassword
 from domain.user.repository.exceptions import (
     EmailAlreadyExistsError,
 )
+from domain.user.value_objects import Email, Username
 
 
 class FakeTimeProvider:
@@ -42,22 +44,22 @@ class FakeUserEntity:
     id: UUID = field(default_factory=uuid4)
 
     created_at: datetime = field(default_factory=datetime.now)
-    username: str
-    email: str
-    password: str
+    updated_at: datetime = field(default_factory=datetime.now)
+    username: Username
+    email: Email
 
 
 @pytest.fixture
 def valid_user1():
     return FakeUserEntity(
-        username="test_user1", email="test1@example.com", password="hashed_Test_pw_1!"
+        username=Username("test_user1"), email=Email("test1@example.com")
     )
 
 
 @pytest.fixture
 def valid_user2():
     return FakeUserEntity(
-        username="test_user2", email="test2@example.com", password="hashed_Test_pw_2!"
+        username=Username("test_user2"), email=Email("test2@example.com")
     )
 
 
@@ -82,7 +84,9 @@ class FakeInMemoryAsyncUserRepository:
         del self.items[id]
 
     async def get_by_username(self, username: str) -> FakeUserEntity | None:
-        filtered_result = filter(lambda u: u.username == username, self.items.values())
+        filtered_result = filter(
+            lambda u: u.username.value == username, self.items.values()
+        )
         return next(filtered_result, None)
 
     async def check_email_exists(self, email: str) -> None:
@@ -103,7 +107,7 @@ class FakeLocalAuthInfoEntity:
     id: UUID = field(default_factory=uuid4)
     user_id: UUID
     auth_type: str
-    hashed_password: str
+    hashed_password: HashedPassword
     password_expired_at: datetime
 
 
@@ -116,13 +120,22 @@ class FakeInMemoryAsyncLocalAuthInfoRepository:
     async def save(self, entity: FakeLocalAuthInfoEntity) -> None:
         self.items[entity.id] = entity
 
+    async def get_user_auth_info(self, user_id: UUID):
+        return next(
+            filter(
+                lambda local_auth_info: local_auth_info.user_id == user_id,
+                self.items.values(),
+            ),
+            None,
+        )
+
 
 @pytest.fixture
 def valid_local_auth_info1(valid_user1: FakeUserEntity):
     return FakeLocalAuthInfoEntity(
         user_id=valid_user1.id,
         auth_type=AuthTypeEnum.LOCAL.value,
-        hashed_password="hashed_Test_pw_1!",
+        hashed_password=HashedPassword("hashed_Test_pw_1!"),
         password_expired_at=datetime.now() + timedelta(days=30),
     )
 
@@ -132,7 +145,7 @@ def valid_local_auth_info2(valid_user2: FakeUserEntity):
     return FakeLocalAuthInfoEntity(
         user_id=valid_user2.id,
         auth_type=AuthTypeEnum.LOCAL.value,
-        hashed_password="hashed_Test_pw_2!",
+        hashed_password=HashedPassword("hashed_Test_pw_2!"),
         password_expired_at=datetime.now() + timedelta(days=30),
     )
 
