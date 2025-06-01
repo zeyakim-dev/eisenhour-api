@@ -8,11 +8,14 @@ from application.messaging.command.auth.local.local_user_authenticate_command im
     LocalUserAuthenticateCommandResult,
 )
 from application.messaging.command.base.command_handler import CommandHandler
+from application.messaging.command.base.exceptions import RepositoryNotFoundError
 from application.ports.jwt_provider.jwt_provider import JWTProvider
+from domain.auth.auth_info.local.repository.exceptions import LocalAuthInfoNotFoundError
 from domain.auth.auth_info.local.repository.local_auth_info_repository import (
     LocalAuthInfoRepository,
 )
 from domain.auth.auth_info.local.value_objects import PlainPassword
+from domain.user.repository.exceptions import UsernameNotFoundError
 from domain.user.repository.user_repository import UserRepository
 from domain.user.value_objects import Username
 from shared_kernel.hasher.hasher import Hasher
@@ -51,19 +54,21 @@ class LocalUserAuthenticateCommandHandler(
         plain_password = PlainPassword(command.plain_password)
 
         user_repository: UserRepository | None = self.repositories.get("user")
+        if not user_repository:
+            raise RepositoryNotFoundError("user")
         local_auth_info_repository: LocalAuthInfoRepository | None = (
             self.repositories.get("local_auth_info")
         )
-        if user_repository is None or local_auth_info_repository is None:
-            raise ValueError
+        if not local_auth_info_repository:
+            raise RepositoryNotFoundError("local_auth_info")
 
         user = await user_repository.get_by_username(username.value)
         if not user:
-            raise ValueError
+            raise UsernameNotFoundError(username.value)
 
         local_auth_info = await local_auth_info_repository.get_user_auth_info(user.id)
         if not local_auth_info:
-            raise ValueError
+            raise LocalAuthInfoNotFoundError(str(user.id))
 
         if not self.hasher.verify(
             plain_password.value, local_auth_info.hashed_password.value

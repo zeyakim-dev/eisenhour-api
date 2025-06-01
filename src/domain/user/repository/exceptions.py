@@ -11,3 +11,10 @@ class EmailAlreadyExistsError(Exception):
             email (str): 중복된 이메일 주소.
         """
         super().__init__(f"Email {email} already exists")
+
+
+class UsernameNotFoundError(Exception):
+    """Username not found error"""
+
+    def __init__(self, username: str):
+        super().__init__(f"Username {username} not found")
