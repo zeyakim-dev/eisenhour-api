@@ -59,7 +59,7 @@ class TestUserRegisterCommand:
     ):
         command = LocalUserRegisterCommand.create(
             now=time_provider.now(),
-            username=valid_user1.username,
+            username=valid_user1.username.value,
             email="unique@example.com",
             plain_password="Secret_123!",
         )
@@ -73,7 +73,7 @@ class TestUserRegisterCommand:
         command = LocalUserRegisterCommand.create(
             now=time_provider.now(),
             username="uniqueuser",
-            email=valid_user2.email,
+            email=valid_user2.email.value,
             plain_password="Secret_123!",
         )
 

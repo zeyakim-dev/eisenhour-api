@@ -90,7 +90,8 @@ class FakeInMemoryAsyncUserRepository:
         return next(filtered_result, None)
 
     async def check_email_exists(self, email: str) -> None:
-        if any(u.email == email for u in self.items.values()):
+        filtered_result = filter(lambda u: u.email.value == email, self.items.values())
+        if next(filtered_result, None) is not None:
             raise EmailAlreadyExistsError(email)
 
 

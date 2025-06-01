@@ -5,8 +5,8 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
-from application.ports.repository.exceptions import EntityNotFoundError
 from domain.auth.auth_info.local.local_auth_info import LocalAuthInfo
+from domain.auth.auth_info.local.repository.exceptions import LocalAuthInfoNotFoundError
 from infra.persistence.sqlalchemy.postgresql.auth_info.local.local_auth_info_model import (
     LocalAuthInfoModel,
 )
@@ -95,5 +95,5 @@ class TestSqlalchemyPgAsyncLocalAuthInfoRepository:
         local_auth_info_repository: SQLAlchemyPGAsyncLocalAuthInfoRepository,
     ):
         nonexisting_user_id = uuid4()
-        with pytest.raises(EntityNotFoundError):
+        with pytest.raises(LocalAuthInfoNotFoundError):
             await local_auth_info_repository.get_user_auth_info(nonexisting_user_id)

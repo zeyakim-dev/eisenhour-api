@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from application.ports.repository.exceptions import EntityNotFoundError
+from domain.auth.auth_info.local.repository.exceptions import LocalAuthInfoNotFoundError
 from domain.auth.auth_info.local.repository.local_auth_info_repository import (
     LocalAuthInfoRepository,
 )
@@ -86,5 +86,5 @@ class TestLocalAuthInfoRepository:
             EntityNotFoundError 예외를 발생시켜야 한다.
         """
         nonexisting_user_id = uuid4()
-        with pytest.raises(EntityNotFoundError):
+        with pytest.raises(LocalAuthInfoNotFoundError):
             await local_auth_info_repository.get_user_auth_info(nonexisting_user_id)
