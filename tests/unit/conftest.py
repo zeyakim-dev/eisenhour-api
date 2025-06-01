@@ -4,9 +4,6 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from application.messaging.command.auth.local.handler.exceptions import (
-    UsernameAlreadyExistsError,
-)
 from application.ports.repository.exceptions import EntityNotFoundError
 from domain.auth.auth_info.base.value_objects import AuthTypeEnum
 from domain.user.repository.exceptions import (
@@ -84,9 +81,9 @@ class FakeInMemoryAsyncUserRepository:
             raise EntityNotFoundError(self.__class__.__name__, id)
         del self.items[id]
 
-    async def check_username_exists(self, username: str) -> None:
-        if any(u.username == username for u in self.items.values()):
-            raise UsernameAlreadyExistsError(username)
+    async def get_by_username(self, username: str) -> FakeUserEntity | None:
+        filtered_result = filter(lambda u: u.username == username, self.items.values())
+        return next(filtered_result, None)
 
     async def check_email_exists(self, email: str) -> None:
         if any(u.email == email for u in self.items.values()):
