@@ -61,8 +61,7 @@ class Entity:
         Returns:
             Self: 생성된 엔터티 인스턴스를 반환합니다.
         """
-        kwargs.setdefault("created_at", now)
-        kwargs.setdefault("updated_at", now)
+        kwargs.update({"created_at": now, "updated_at": now})
         return cls(**kwargs)
 
     def update(self, now: datetime, **kwargs: Any) -> Self:
@@ -77,5 +76,5 @@ class Entity:
         Returns:
             Self: 수정된 엔터티 인스턴스를 새로 생성하여 반환합니다.
         """
-        kwargs.setdefault("updated_at", now)
+        kwargs.update({"updated_at": now})
         return replace(self, **kwargs)
